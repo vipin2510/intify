@@ -200,7 +200,7 @@ export const XLS = ({ data, setData, legend, setkmlData, setXlsData, map }: XLSP
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await axios.get("https://sheetdb.io/api/v1/1s3s2lkndkhr4?sheet=Int%20Main%20Sheet");
+            const res = await axios.get("https://sheetdb.io/api/v1/vqck1vghtwyy3?sheet=Int%20Main%20Sheet");
             const processedData = res.data.map((item: any) => ({
                 Date: item.Date,
                 IntContent: item['Int Content'],

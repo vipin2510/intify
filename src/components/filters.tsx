@@ -31,9 +31,7 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
         }
     }
 
-    const accessingSelectedFiltered = (key: string) => {
-        return (selectedFilters as xlsDataType)[key as keyof xlsDataType]
-    }
+   
 
     useEffect(() => {
         if (xlsData.length > 0) {
@@ -48,8 +46,10 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
         const { startDate, endDate, ...otherFilters } = selectedFilters;
     
         // Filter by date range first
+        
         const filteredByDate = xlsData.filter((data) => {
-            const dataDate = new Date(data.Date.split('/').reverse().join('-'));
+            if (data.Date && typeof data.Date === 'string') {
+                const dataDate = new Date(String(data.Date).split('/').reverse().join('-'));
     
             if (startDate && endDate) {
                 return dataDate >= new Date(startDate) && dataDate <= new Date(endDate);
@@ -58,6 +58,7 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
             } else if (endDate) {
                 return dataDate <= new Date(endDate);
             }
+        }
     
             return true; // No date filter applied
         });
@@ -70,7 +71,7 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
                 }
     
                 const dataValue = data[key as keyof xlsDataType]?.toString().toLowerCase();
-                const filterValue = value.toString().toLowerCase();
+                const filterValue = typeof value !== 'undefined' && value !== null ? value.toString().toLowerCase() : '';
                 return dataValue === filterValue;
             });
         });
@@ -131,7 +132,7 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
                 }
             } else {
                 // If the checkbox is unchecked, remove the label from the filters
-                const { [label]: omitted, ...rest } = filters;
+                const { [label]: omitted, ...rest } = filters as Record<string, any>;
                 return rest;
             }
         });
@@ -154,8 +155,8 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
         const isNumericField = ['Month', 'Strength', 'IntUniqueNo', 'Week'].includes(selected);
     
         return isNumericField
-            ? uniqueValues.map(value => value.toString())
-            : uniqueValues.map(value => value.toString().toLowerCase());
+            ?  uniqueValues.map(value => value !== null ? value.toString() : '')
+            :  uniqueValues.map(value => value !== null ? value.toString().toLowerCase() : '');
     };
 
 
