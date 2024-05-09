@@ -1,0 +1,14 @@
+{
+"type": "FeatureCollection",
+"name": "Sarhadi Market",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Name": "Kadenar Tue" }, "geometry": { "type": "Point", "coordinates": [ 81.414909808530595, 19.3576298121564 ] } },
+{ "type": "Feature", "properties": { "Name": "Aamabeda Wed." }, "geometry": { "type": "Point", "coordinates": [ 81.323587192263005, 20.0630159305781 ] } },
+{ "type": "Feature", "properties": { "Name": "Tadoki Fri." }, "geometry": { "type": "Point", "coordinates": [ 81.159265621661703, 19.961844338534299 ] } },
+{ "type": "Feature", "properties": { "Name": "Koylibeda Fri" }, "geometry": { "type": "Point", "coordinates": [ 80.987607811997094, 19.961335847645799 ] } },
+{ "type": "Feature", "properties": { "Name": "Badedongar Fri" }, "geometry": { "type": "Point", "coordinates": [ 81.532222683412598, 19.806771336346699 ] } },
+{ "type": "Feature", "properties": { "Name": "Kondagaon Sun." }, "geometry": { "type": "Point", "coordinates": [ 81.670077781059803, 19.5996144298297 ] } },
+{ "type": "Feature", "properties": { "Name": "Bayanar Tue" }, "geometry": { "type": "Point", "coordinates": [ 81.487276279887496, 19.550102358841698 ] } }
+]
+}

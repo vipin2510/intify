@@ -1,0 +1,27 @@
+{
+"type": "FeatureCollection",
+"name": "Market",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Name": "Bakhrupara Sun." }, "geometry": { "type": "Point", "coordinates": [ 81.2535234802925, 19.718462973946998 ] } },
+{ "type": "Feature", "properties": { "Name": "Pharasgaon Thu." }, "geometry": { "type": "Point", "coordinates": [ 81.354279421193993, 19.616229479989801 ] } },
+{ "type": "Feature", "properties": { "Name": "Dhaudai Fri." }, "geometry": { "type": "Point", "coordinates": [ 81.371894834707803, 19.4921778033255 ] } },
+{ "type": "Feature", "properties": { "Name": "Chhotedongar Thu." }, "geometry": { "type": "Point", "coordinates": [ 81.328100972143005, 19.451624823361499 ] } },
+{ "type": "Feature", "properties": { "Name": "Raynar Sun." }, "geometry": { "type": "Point", "coordinates": [ 81.215190635140601, 19.411078335817201 ] } },
+{ "type": "Feature", "properties": { "Name": "Orchha Wed." }, "geometry": { "type": "Point", "coordinates": [ 81.181292836982195, 19.363264461256101 ] } },
+{ "type": "Feature", "properties": { "Name": "Edka Mon." }, "geometry": { "type": "Point", "coordinates": [ 81.309332751735994, 19.771714635790101 ] } },
+{ "type": "Feature", "properties": { "Name": "Sonpur Tue." }, "geometry": { "type": "Point", "coordinates": [ 81.007166541900403, 19.705831231721199 ] } },
+{ "type": "Feature", "properties": { "Name": "Aakabeda Mon." }, "geometry": { "type": "Point", "coordinates": [ 81.180357902844406, 19.591639039188198 ] } },
+{ "type": "Feature", "properties": { "Name": "Remawand Mon." }, "geometry": { "type": "Point", "coordinates": [ 81.371772319410198, 19.692117788737999 ] } },
+{ "type": "Feature", "properties": { "Name": "Benur Sat." }, "geometry": { "type": "Point", "coordinates": [ 81.427867817978097, 19.658921375925299 ] } },
+{ "type": "Feature", "properties": { "Name": "Kokodi Thu." }, "geometry": { "type": "Point", "coordinates": [ 81.556304717390304, 19.6488419045894 ] } },
+{ "type": "Feature", "properties": { "Name": "Kohkameta Sat." }, "geometry": { "type": "Point", "coordinates": [ 81.071468881592693, 19.643559468327499 ] } },
+{ "type": "Feature", "properties": { "Name": "Kasturmeta Wed." }, "geometry": { "type": "Point", "coordinates": [ 81.1489086501374, 19.567085933105901 ] } },
+{ "type": "Feature", "properties": { "Name": "Budhwari bazar Wed" }, "geometry": { "type": "Point", "coordinates": [ 81.247111783584998, 19.7147472207802 ] } },
+{ "type": "Feature", "properties": { "Name": "Basing Wed" }, "geometry": { "type": "Point", "coordinates": [ 81.086747890316701, 19.7072732789225 ] } },
+{ "type": "Feature", "properties": { "Name": "Chingnaar Fri." }, "geometry": { "type": "Point", "coordinates": [ 81.417784865019797, 19.7579870147026 ] } },
+{ "type": "Feature", "properties": { "Name": "Chhinari Wed." }, "geometry": { "type": "Point", "coordinates": [ 81.418255638033898, 19.564727062877601 ] } },
+{ "type": "Feature", "properties": { "Name": "Kutul Fri." }, "geometry": { "type": "Point", "coordinates": [ 81.027146795613703, 19.522392349412002 ] } },
+{ "type": "Feature", "properties": { "Name": "Badejamri Fri." }, "geometry": { "type": "Point", "coordinates": [ 81.252463297773105, 19.642360020787599 ] } }
+]
+}

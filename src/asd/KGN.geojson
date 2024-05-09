@@ -1,0 +1,28 @@
+{
+"type": "FeatureCollection",
+"name": "KGN",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Name": "Alverpara" }, "geometry": { "type": "Point", "coordinates": [ 81.460476468819493, 19.281366453082899 ] } },
+{ "type": "Feature", "properties": { "Name": "Aradi" }, "geometry": { "type": "Point", "coordinates": [ 81.475513978704896, 19.3627456949981 ] } },
+{ "type": "Feature", "properties": { "Name": "Berma" }, "geometry": { "type": "Point", "coordinates": [ 81.476825335931494, 19.295023136012599 ] } },
+{ "type": "Feature", "properties": { "Name": "Chhitapani" }, "geometry": { "type": "Point", "coordinates": [ 81.4593320590226, 19.322530968239999 ] } },
+{ "type": "Feature", "properties": { "Name": "Ehkoli" }, "geometry": { "type": "Point", "coordinates": [ 81.482253417015002, 19.343530699998599 ] } },
+{ "type": "Feature", "properties": { "Name": "Erandwal" }, "geometry": { "type": "Point", "coordinates": [ 81.491415225888304, 19.3277327764918 ] } },
+{ "type": "Feature", "properties": { "Name": "Erandwal 1" }, "geometry": { "type": "Point", "coordinates": [ 81.501279166876898, 19.321089558044399 ] } },
+{ "type": "Feature", "properties": { "Name": "Gardapal 1" }, "geometry": { "type": "Point", "coordinates": [ 81.432363274004999, 19.366242012163902 ] } },
+{ "type": "Feature", "properties": { "Name": "Gardapal 2" }, "geometry": { "type": "Point", "coordinates": [ 81.428684694777701, 19.376915072155999 ] } },
+{ "type": "Feature", "properties": { "Name": "Handapal" }, "geometry": { "type": "Point", "coordinates": [ 81.480510462594395, 19.312203044625001 ] } },
+{ "type": "Feature", "properties": { "Name": "Karenar" }, "geometry": { "type": "Point", "coordinates": [ 81.456897570002894, 19.351071372516799 ] } },
+{ "type": "Feature", "properties": { "Name": "Kudhur" }, "geometry": { "type": "Point", "coordinates": [ 81.506231020717806, 19.245022916389299 ] } },
+{ "type": "Feature", "properties": { "Name": "Kudhur 1" }, "geometry": { "type": "Point", "coordinates": [ 81.499306883475896, 19.251180921105998 ] } },
+{ "type": "Feature", "properties": { "Name": "Kudhur 2" }, "geometry": { "type": "Point", "coordinates": [ 81.489848268749995, 19.2511206335727 ] } },
+{ "type": "Feature", "properties": { "Name": "Markampal" }, "geometry": { "type": "Point", "coordinates": [ 81.467366712174993, 19.3321222118721 ] } },
+{ "type": "Feature", "properties": { "Name": "Naya Temrugaon" }, "geometry": { "type": "Point", "coordinates": [ 81.426113112345703, 19.380429007837101 ] } },
+{ "type": "Feature", "properties": { "Name": "Padnar" }, "geometry": { "type": "Point", "coordinates": [ 81.426688891500504, 19.38681887041 ] } },
+{ "type": "Feature", "properties": { "Name": "Temrugaon" }, "geometry": { "type": "Point", "coordinates": [ 81.428860137940703, 19.404141086248501 ] } },
+{ "type": "Feature", "properties": { "Name": "Tirinbera" }, "geometry": { "type": "Point", "coordinates": [ 81.433316174079806, 19.360789121724501 ] } },
+{ "type": "Feature", "properties": { "Name": "Tumriwal" }, "geometry": { "type": "Point", "coordinates": [ 81.478266418566903, 19.265226729860998 ] } },
+{ "type": "Feature", "properties": { "Name": "Tumriwal 1" }, "geometry": { "type": "Point", "coordinates": [ 81.489891146105506, 19.265657931280401 ] } }
+]
+}
