@@ -26,6 +26,8 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
                 return "Int Unique No";
             case "IntContent":
                 return "Int Content";
+            case "Name_":
+                return "Alias"; // Change the display name to "Alias"
             default:
                 return param;
         }
