@@ -136,17 +136,6 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
                         // Create marker info
                         const markerInfo = document.createElement('div');
                         markerInfo.className = 'marker-info';
-                        // if (legend === 'Date') {
-                        //     if (typeof el.Date === 'number' && !isNaN(el.Date)) {
-                        //         const startDate = new Date(1900, 0, 1); // January is 0-based
-                        //         const date = new Date(startDate.getTime() + (el.Date - 1) * 24 * 60 * 60 * 1000);
-                        //         markerInfo.innerHTML = `<h3>${date.toLocaleDateString('en-GB')}</h3>`;
-                        //     } else {
-                        //         console.log("Date is not a valid number");
-                        //     }
-
-
-                        // } else {
                         markerInfo.innerHTML = `<h3>${el[legend as keyof xlsDataType]}</h3>`;
                         markerInfo.style.backgroundColor = stringToColor(el.Name_);
                         markerInfo.style.position = "absolute"
