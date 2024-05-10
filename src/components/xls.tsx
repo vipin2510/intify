@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import axios from "axios";
 import { stringToColor } from "@/lib/utils";
 
-export const XLS = ({ data, setData, legend, setkmlData, setXlsData, map }: XLSProps) => {
+export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, map }: XLSProps) => {
     const parseDMS = (dms: string): number => {
         const regex = /(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)\s*"/; // Regex to match degrees, minutes, and seconds
         const match = dms.match(regex);
@@ -155,7 +155,7 @@ export const XLS = ({ data, setData, legend, setkmlData, setXlsData, map }: XLSP
                         markerInfo.style.color = "#333";
                         markerInfo.style.padding = "6px";
                         markerInfo.style.borderRadius = "6px";
-                        markerInfo.style.width="max-content";
+                        markerInfo.style.width = "max-content";
                         markerInfo.style.fontSize = "12px";
                         markerInfo.style.boxShadow = "0 0 4px rgba(0, 0, 0, 0.05)"
                         // }
@@ -185,8 +185,7 @@ export const XLS = ({ data, setData, legend, setkmlData, setXlsData, map }: XLSP
             map.current.fitBounds(bounds, { padding: 50 });
         };
 
-        if (data.length !== 0) {
-            console.log(data)
+        if (data.length !== 0 && showLayer.marker) {
             createMarkers();
         }
 
@@ -196,8 +195,7 @@ export const XLS = ({ data, setData, legend, setkmlData, setXlsData, map }: XLSP
                 marker.remove();
             });
         };
-    }, [data, legend]);
-
+    }, [data, legend, showLayer.marker]);
     useEffect(() => {
         const fetchData = async () => {
             const res = await axios.get("https://sheetdb.io/api/v1/vqck1vghtwyy3?sheet=Int%20Main%20Sheet");
@@ -222,8 +220,8 @@ export const XLS = ({ data, setData, legend, setkmlData, setXlsData, map }: XLSP
             setData(processedData);
             setXlsData(processedData);
         }
-        fetchData();
-    }, []);
+        showLayer.marker && fetchData();
+    }, [showLayer.marker]);
 
     return (
         <>

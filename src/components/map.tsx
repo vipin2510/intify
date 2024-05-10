@@ -11,36 +11,10 @@ export const Map = ({ map }: MapProps) => {
             zoom: 12 // starting zoom
         });
 
-        // Generate a unique source ID
-        const sourceId = 'my-data-' + Math.random().toString(36).substr(2, 9);
+        // Generate a unique source IDconst sourceId = 'my-data-' + Math.random().toString(36).substr(2, 9);
 
         // Add GeoJSON source
-        map.current.on('load', function () {
-            map.current.addSource(sourceId, {
-                type: 'geojson',
-                data: './asd/Barsur_Area_Committee.geojson'
-            });
-
-            map.current.addLayer({
-                id: sourceId,
-                type: 'line', // Change this to 'line', 'circle', etc. depending on your GeoJSON data type
-                source: sourceId,
-                paint: {
-                    'line-color': '#000000', // White fill color
-            'line-width':4 // Adjust opacity if needed // Adjust opacity if needed
-                    }                   // Specify paint properties here, e.g., fill color, line color, etc.
-            });
-            map.current.addLayer({
-                id: sourceId+'askjd',
-                type: 'fill', // Change this to 'line', 'circle', etc. depending on your GeoJSON data type
-                source: sourceId,
-                paint: {
-                    'fill-color': '#FFFFFF', // Black outline color
-            'fill-opacity': 0.29,
-            'fill-outline-color': '#000000' // Adjust opacity if needed // Adjust opacity if needed
-                    }                   // Specify paint properties here, e.g., fill color, line color, etc.
-            });
-        })
+        
     }, []);
 
     return (

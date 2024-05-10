@@ -35,11 +35,20 @@ interface KmlGeneratorProps {
 interface XLSProps {
     legend: string;
     data: xlsDataType[];
+    showLayer: showLayerType;
     setData: (data: xlsDataType[]) => void;
     setkmlData: (update: (prev: kmlDataType[]) => kmlDataType[]) => void;
     setXlsData: (data: xlsDataType[]) => void;
     map: any;
 };
+interface LayerProps {
+    showLayer: showLayerType;
+    map: any;
+}
 interface MapProps {
     map: any;
+}
+type showLayerType = {
+    marker: boolean;
+    border: boolean;
 }
