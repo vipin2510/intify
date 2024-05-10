@@ -27,7 +27,7 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
             case "IntContent":
                 return "Int Content";
             case "Name_":
-                return "Alias"; // Change the display name to "Alias"
+                return "Short name"; // Change the display name to "Alias"
             default:
                 return param;
         }
