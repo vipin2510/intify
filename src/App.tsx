@@ -13,7 +13,7 @@ const App = () => {
   const [kmlData, setkmlData] = useState<kmlDataType[]>([]);
   const [xlsData, setXlsData] = useState<xlsDataType[]>([]);
   const [legend, setLegend] = useState<string>("Name");
-  const [showLayer, setShowLayer] = useState<showLayerType>({ marker: false, border: false });
+  const [showLayer, setShowLayer] = useState<showLayerType>({ marker: true, border: false });
 
   return (
     <main className='flex flex-col h-screen'>
