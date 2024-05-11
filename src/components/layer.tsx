@@ -14,10 +14,9 @@ export const Layer = ({ map, showLayer }: LayerProps) => {
       'DWA.geojson',
       'Indravati_Area_Committee.geojson',
       'KGN.geojson',
-      'kiskodo_Area_Committee.geojson',
-      'kkR.geojson',
-      'kutuI_Area_Committee.geojson',
-      'Narayanpur_border. geojson',
+      'Kiskodo_Area_Committee.geojson',
+      'KKR.geojson',
+      'Kutul_Area_Committee.geojson',
       'Nelnar_Area_Committee.geojson',
       'NPR.geojson',
       'Partapur_Area_Committee.geojson',
@@ -31,7 +30,19 @@ export const Layer = ({ map, showLayer }: LayerProps) => {
       const createBorders = () => {
         setLayers([]); // Clear the layers state
         setSources([]); // Clear the sources state
-  
+        map.current.addSource('source-100',{
+          type: 'geojson',
+          data: './Geojson/Narayanpur_border.geojson'
+        })
+        map.current.addLayer({
+          id: 'data-100',
+          type: 'line',
+          source: `source-100`,
+          paint: {
+            'line-color': '#FFFFFF',
+            'line-width': 4,
+          },
+        });
         files.forEach((file, index) => {
           const sourceId = `source-${index}`;
           const layerId = `data-${index}`;
@@ -60,7 +71,10 @@ export const Layer = ({ map, showLayer }: LayerProps) => {
         layers.forEach((layer) => {
           map.current.removeLayer(layer);
         });
-  
+        if(layers.length >0){
+        map.current.removeLayer('data-100');
+        map.current.removeSource('source-100');
+      }
         sources.forEach((source) => {
           map.current.removeSource(source);
         });
@@ -70,8 +84,6 @@ export const Layer = ({ map, showLayer }: LayerProps) => {
     }, [showLayer.border]);
   
     useEffect(() => {
-      console.log("Layers:", layers);
-      console.log("Sources:", sources);
     }, [layers, sources]);
   
     return (<></>);
