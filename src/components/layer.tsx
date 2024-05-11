@@ -16,6 +16,7 @@ export const Layer = ({ map, showLayer }: LayerProps) => {
         'Kutul_Area_Committee.geojson',
         'Market.geojson',
         'NPR.geojson',
+        'Narayanpur_border.geojson',
         'NPR_PS_CAMP.geojson',
         'Narayanpur.geojson',
         'Nelnar_Area_Committee.geojson',
