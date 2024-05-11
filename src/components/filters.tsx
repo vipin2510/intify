@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AutocompleteInput } from './AutocompleteInput';
-
+import { useOutsideClick } from "./use-outside-click";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,7 +15,8 @@ import { toast } from "sonner";
 export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersProps) => {
     const [filterLabels, setFilterLabels] = useState<string[]>([]);
     const [selectedFilters, setSelectedFilters] = useState<Partial<xlsDataType & { startDate?: Date; endDate?: Date }>>({});
-
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
     const SpacedNamed = (param: string) => {
         switch (param) {
             case "PoliceStation":
@@ -166,9 +167,23 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
         <form onSubmit={handleSubmit} className="h-[200px] w-full shadow-xl p-4 shadow-slate-300 flex gap-x-2" >
             <div className="w-fit flex flex-col gap-y-2">
                 <h2 className="text-lg">Filters</h2>
-                <DropdownMenu>
-                    <DropdownMenuTrigger className="w-fit" asChild><Button variant="dropDown">Choose Filters</Button></DropdownMenuTrigger>
-                    <DropdownMenuContent className="flex flex-col gap-y-1 overflow-auto">
+                <DropdownMenu open={isDropdownOpen}>
+  <DropdownMenuTrigger
+    className="w-fit"
+    asChild
+    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+  >
+    <Button variant="dropDown">Choose Filters</Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent
+  className="flex flex-col gap-y-1 overflow-auto"
+  ref={dropdownRef}
+  onKeyDown={(e) => {
+    if (e.key === "Escape") {
+      setIsDropdownOpen(false);
+    }
+  }}
+>
     {filterLabels.length !== 0 ? (
         filterLabels.map((label) => (
             <DropdownMenuCheckboxItem
@@ -224,10 +239,14 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
                 </DropdownMenu>
             </div>
             <div className="w-full flex flex-col flex-wrap p-2 gap-2">
-    {selectedFilters
-        ? Object.keys(selectedFilters).map(selected => (
-            <div key={selected} className="flex flex-col gap-y-2">
-                {selected === 'startDate' || selected === 'endDate' ? (
+            {selectedFilters
+    ? Object.keys(selectedFilters).map(selected => (
+        <div key={selected} className="flex flex-col gap-y-2">
+            {selected === 'startDate' || selected === 'endDate' ? (
+                <>
+                    <label htmlFor={selected} className="text-sm font-medium">
+                        {selected === 'startDate' ? 'Start Date' : 'End Date'}
+                    </label>
                     <input
                         type="date"
                         id={selected}
@@ -235,19 +254,20 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
                         onChange={(e) => handleChange(e.target.value, selected)}
                         className="border border-gray-300 rounded-md px-3 py-2"
                     />
-                ) : (
-                    <AutocompleteInput
-                        id={selected}
-                        label={SpacedNamed(selected)}
-                        value={selectedFilters[selected as keyof typeof selectedFilters]?.toString() || ''}
-                        onChange={(value) => handleChange(value, selected)}
-                        suggestions={getSuggestions(selected)}
-                    />
-                )}
-            </div>
-        ))
-        : <p>No Filters Selected</p>
-    }
+                </>
+            ) : (
+                <AutocompleteInput
+                    id={selected}
+                    label={SpacedNamed(selected)}
+                    value={selectedFilters[selected as keyof typeof selectedFilters]?.toString() || ''}
+                    onChange={(value) => handleChange(value, selected)}
+                    suggestions={getSuggestions(selected)}
+                />
+            )}
+        </div>
+    ))
+    : <p>No Filters Selected</p>
+}
 </div>
         </form>
     );
