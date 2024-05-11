@@ -21,7 +21,6 @@ export const Layer = ({ map, showLayer }: LayerProps) => {
         'Nelnar_Area_Committee.geojson',
         'Partapur_Area_Committee.geojson',
         'Raoghat_Area_Committee.geojson',
-        'River.geojson',
         'Sarhadi_Market.geojson'
     ]
 
