@@ -2,27 +2,26 @@ import { useEffect, useState } from "react";
 
 export const Layer = ({ map, showLayer }: LayerProps) => {
     const files = [
-        'Amdaighati_Area_Committee.geojson',
-        'BJR.geojson',
-        'BTR.geojson',
-        'Barsur_Area_Committee.geojson',
-        'Bayanar_Area_Committee.geojson',
-        'Bodhghat_Area_Committe.geojson',
-        'DWA.geojson',
-        'Indravati_Area_Committee.geojson',
-        'KGN.geojson',
-        'KKR.geojson',
-        'Kiskodo_Area_Committee.geojson',
-        'Kutul_Area_Committee.geojson',
-        'Market.geojson',
-        'NPR.geojson',
-        'Narayanpur_border.geojson',
-        'NPR_PS_CAMP.geojson',
-        'Narayanpur.geojson',
-        'Nelnar_Area_Committee.geojson',
-        'Partapur_Area_Committee.geojson',
-        'Raoghat_Area_Committee.geojson',
-        'Sarhadi_Market.geojson'
+      'Amdaighati_Area_Committee.geojson',
+      'Area_committee.geojson',
+      'Area_committee_Combie.geojson',
+      'Area_Committee_wise.geojson',
+      'Barsur_Area_Committee.geojson',
+      'Bayanar_Area_Committee.geojson',
+      'BJR.geojson',
+      'Bodhghat_Area_Committe.geojson',
+      'BTR.geojson',
+      'DWA.geojson',
+      'Indravati_Area_Committee.geojson',
+      'KGN.geojson',
+      'kiskodo_Area_Committee.geojson',
+      'kkR.geojson',
+      'kutuI_Area_Committee.geojson',
+      'Narayanpur_border. geojson',
+      'Nelnar_Area_Committee.geojson',
+      'NPR.geojson',
+      'Partapur_Area_Committee.geojson',
+      'Raoghat_Area_Committee.geojson'
     ]
 
     const [layers, setLayers] = useState<string[]>([]);
