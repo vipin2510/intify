@@ -33,8 +33,14 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
     const convertGRToDecimal = (gr: string): [number, number] => {
         let decimal = gr.trim().split("  ");
         const [lat, lon] = decimal.map(el => parseFloat(el.trim().substring(0, el.length - 2)));
-        if (!isNaN(lat) && !isNaN(lon))
+        console.log(lat,lon)
+        console.log("asd")
+        if (!isNaN(lat) && !isNaN(lon)){
+            console.log("tut");
+            console.log(lat,lon);
+
             return [lon, lat];
+    }
         const regex = /(\d+°\s*\d+'\s*\d+(?:\.\d+)?"\s*[NS])\s+(\d+°\s*\d+'\s*\d+(?:\.\d+)?"\s*[EW])/;
         const match = gr.match(regex);
         if (!match) {
@@ -121,8 +127,14 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
             // Loop through each coordinate in the array
             data.forEach(el => {
                 // Create a marker for each coordinate
+                let a = 1
                 if (el.GR && el.GR.length > 0) {
                     const coordinates = convertGRToDecimal(el.GR) as [number, number];
+                    
+                    a=a+1
+                    console.log(coordinates.toString());
+                    console.log(el.GR);
+                    console.log(el.IntUniqueNo);
                     // Extend the bounds to include each coordinate
                     if (!isNaN(coordinates[0]) && !isNaN(coordinates[1])) {
                         const markerElement = document.createElement('div');
@@ -151,7 +163,7 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
                         markerElement.appendChild(markerInfo);
                                                 // Create popup
                                                 const popup = new mapboxgl.Popup({ offset: 25 })
-                                                .setHTML(`<h3>${el["IntContent" as keyof xlsDataType]}</h3>`);
+                                                    .setHTML(`<h3>${el["IntUniqueNo" as keyof xlsDataType]}: ${el["IntContent" as keyof xlsDataType]} </h3>`);
                     
 
                         const marker = new mapboxgl.Marker({

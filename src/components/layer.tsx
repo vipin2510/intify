@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 export const Layer = ({ map, showLayer }: LayerProps) => {
     const files = [
       'Amdaighati_Area_Committee.geojson',
-      'Area_committee.geojson',
-      'Area_committee_Combie.geojson',
-      'Area_Committee_wise.geojson',
+      // 'Area_committee.geojson',
+      // 'Area_committee_Combie.geojson',
+      // 'Area_Committee_wise.geojson',
       'Barsur_Area_Committee.geojson',
       'Bayanar_Area_Committee.geojson',
       'BJR.geojson',
