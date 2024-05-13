@@ -14,6 +14,7 @@ const App = () => {
   const [xlsData, setXlsData] = useState<xlsDataType[]>([]);
   const [legend, setLegend] = useState<string>("Name");
   const [showLayer, setShowLayer] = useState<showLayerType>({ marker: true, border: false });
+  const [selectedFilters, setSelectedFilters] = useState<selectedFiltersType>({});
 
   return (
     <main className='flex flex-col h-screen'>
@@ -28,9 +29,9 @@ const App = () => {
         </div>
       </div>
       <XLS showLayer={showLayer} map={map} legend={legend} data={data} setData={setData} setXlsData={setXlsData} setkmlData={setkmlData} />
-      <KmlGenerator kmlData={kmlData} />
+      <KmlGenerator kmlData={kmlData} legendName={legend} selectedFilters={selectedFilters} />
       <Map map={map} />
-      <Filters data={data} legend={legend} setLegend={setLegend} xlsData={xlsData} setData={setData} />
+      <Filters data={data} legend={legend} setLegend={setLegend} xlsData={xlsData} setData={setData} selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters}/>
       <Layer showLayer={showLayer} map={map} />
       <Toaster position='top-center' />
     </main>

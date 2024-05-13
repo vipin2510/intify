@@ -21,6 +21,7 @@ type kmlDataType = {
     latitude: number;
     longitude: number;
 }
+type selectedFiltersType = Partial<xlsDataType> & { startDate?: Date; endDate?: Date };
 
 interface FiltersProps {
     legend: string;
@@ -28,10 +29,16 @@ interface FiltersProps {
     data: xlsDataType[];
     setData: (data: xlsDataType[]) => void;
     xlsData: xlsDataType[];
-};
-interface KmlGeneratorProps {
+    selectedFilters: selectedFiltersType;
+    setSelectedFilters: (filters: selectedFiltersType) => void;
+  };
+
+  interface KmlGeneratorProps {
     kmlData: kmlDataType[];
-};
+    legendName: string;
+    selectedFilters: selectedFiltersType;
+  }
+
 interface XLSProps {
     legend: string;
     data: xlsDataType[];

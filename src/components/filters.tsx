@@ -12,11 +12,14 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersProps) => {
+export const Filters = ({ data, setData, xlsData, legend, setLegend, selectedFilters: initialSelectedFilters, setSelectedFilters: setInitialSelectedFilters }: FiltersProps) => {
     const [filterLabels, setFilterLabels] = useState<string[]>([]);
-    const [selectedFilters, setSelectedFilters] = useState<Partial<xlsDataType & { startDate?: Date; endDate?: Date }>>({});
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
+    const [selectedFilters, setSelectedFilters] = useState<selectedFiltersType>(initialSelectedFilters);
+    useEffect(() => {
+        setInitialSelectedFilters(selectedFilters);
+      }, [selectedFilters, setInitialSelectedFilters]);  
     const SpacedNamed = (param: string) => {
         switch (param) {
             case "PoliceStation":
@@ -149,9 +152,14 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend }: FiltersPr
         return false;
     }
 
-    const handleChange = (value: string, selected: string) => {
-        setSelectedFilters(prev => ({ ...prev, [selected]: value }));
+    const handleChange = (value: string | Date, selected: string) => {
+  setSelectedFilters(prev => {
+    if (selected === 'startDate' || selected === 'endDate') {
+      return { ...prev, [selected]: value as Date };
     }
+    return { ...prev, [selected]: value };
+  });
+}
 
     const getSuggestions = (selected: string) => {
         const uniqueValues = Array.from(new Set(xlsData.map((item) => item[selected as keyof xlsDataType])));
