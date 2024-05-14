@@ -10,11 +10,6 @@ export const Map = ({ map }: MapProps) => {
             center: [80.63333, 19.23333], // starting position [lng, lat]
             zoom: 12 // starting zoom
         });
-
-        // Generate a unique source IDconst sourceId = 'my-data-' + Math.random().toString(36).substr(2, 9);
-
-        // Add GeoJSON source
-        
     }, []);
 
     return (

@@ -16,22 +16,27 @@ const App = () => {
   const [showLayer, setShowLayer] = useState<showLayerType>({ marker: true, border: false });
   const [selectedFilters, setSelectedFilters] = useState<selectedFiltersType>({});
   const [removeUnknown, setRemoveUnknown] = useState<boolean>(false);
+
+  const handleChange = (type: keyof showLayerType) => {
+    setShowLayer(prev => ({ ...prev, [type]: !prev[type] }))
+  }
+
   return (
     <main className='flex flex-col h-screen'>
       <div className='absolute top-0 left-0 bg-white m-4 z-10 p-2 px-3 rounded-lg flex flex-col gap-y-2'>
         <div className='flex gap-x-2'>
-          <input type="checkbox" id='enable-markers' onClick={() => setShowLayer({ ...showLayer, marker: !showLayer.marker })} checked={showLayer.marker} />
+          <input onChange={() => handleChange('marker')} type="checkbox" id='enable-markers' checked={showLayer.marker} />
           <label htmlFor="enable-markers" className='text-sm'>Markers</label>
         </div>
         <div className='flex gap-x-2'>
-          <input type="checkbox" id='enable-border' onClick={() => setShowLayer({ ...showLayer, border: !showLayer.border })} checked={showLayer.border} />
+          <input onChange={() => handleChange('border')} type="checkbox" id='enable-border' checked={showLayer.border} />
           <label htmlFor="enable-border" className='text-sm'>Borders</label>
         </div>
       </div>
       <XLS showLayer={showLayer} map={map} legend={legend} data={data} setData={setData} setXlsData={setXlsData} setkmlData={setkmlData} removeUnknown={removeUnknown} setRemoveUnknown={setRemoveUnknown} />
-      <KmlGenerator kmlData={kmlData} legendName={legend} selectedFilters={selectedFilters} removeUnknown={removeUnknown}/>
+      <KmlGenerator kmlData={kmlData} legendName={legend} selectedFilters={selectedFilters} removeUnknown={removeUnknown} />
       <Map map={map} />
-      <Filters data={data} legend={legend} setLegend={setLegend} xlsData={xlsData} setData={setData} selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters}/>
+      <Filters data={data} legend={legend} setLegend={setLegend} xlsData={xlsData} setData={setData} selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters} />
       <Layer showLayer={showLayer} map={map} />
       <Toaster position='top-center' />
     </main>
