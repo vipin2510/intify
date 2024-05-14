@@ -21,6 +21,7 @@ type kmlDataType = {
     latitude: number;
     longitude: number;
 }
+type selectedFiltersType = Partial<xlsDataType> & { startDate?: Date; endDate?: Date };
 
 interface FiltersProps {
     legend: string;
@@ -28,10 +29,18 @@ interface FiltersProps {
     data: xlsDataType[];
     setData: (data: xlsDataType[]) => void;
     xlsData: xlsDataType[];
-};
-interface KmlGeneratorProps {
+    selectedFilters: selectedFiltersType;
+    setSelectedFilters: (filters: selectedFiltersType) => void;
+    removeUnknown: boolean;
+  };
+
+  interface KmlGeneratorProps {
     kmlData: kmlDataType[];
-};
+    legendName: string;
+    selectedFilters: selectedFiltersType;
+    removeUnknown: boolean;
+  }
+
 interface XLSProps {
     legend: string;
     data: xlsDataType[];
@@ -40,6 +49,8 @@ interface XLSProps {
     setkmlData: (update: (prev: kmlDataType[]) => kmlDataType[]) => void;
     setXlsData: (data: xlsDataType[]) => void;
     map: any;
+    removeUnknown: boolean;
+    setRemoveUnknown: (value: boolean) => void;
 };
 interface LayerProps {
     showLayer: showLayerType;
