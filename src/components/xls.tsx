@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import mapboxgl from 'mapbox-gl';
 import axios from "axios";
 import { stringToColor } from "@/lib/utils";
@@ -6,9 +6,48 @@ import { convertGRToDecimal } from '@/utils/conversion';
 import { handleFile } from "@/utils/file-reader";
 
 export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, map, removeUnknown, setRemoveUnknown }: XLSProps) => {
+    const [filteredData, setFilteredData] = useState<xlsDataType[]>([]);
 
     useEffect(() => {
+        const fetchData = async () => {
+            const res = await axios.get("https://sheetdb.io/api/v1/zbqakzbdg0rah?sheet=Int%20Main%20Sheet");
+            const processedData = res.data.map((item: any) => ({
+                Date: item.Date,
+                IntContent: item['Int Content'],
+                Name: item.Name,
+                Name_: item.Name_,
+                IntUniqueNo: parseInt(item['Int Unique No']),
+                GR: item.GR,
+                Strength: parseInt(item.Strength),
+                Source: item.Source,
+                Type: item.Type,
+                Rank: item.Rank,
+                AreaCommittee: item['Area Committee'],
+                District: item.District,
+                PoliceStation: item['Police Station'],
+                Division: item.Division,
+                Week: parseInt(item.Week),
+                Month: parseInt(item.Month),
+            }));
+            setFilteredData(processedData);
+            setData(processedData);
+            setXlsData(processedData);
+        }
+        showLayer.marker && fetchData();
+    }, [showLayer.marker]);
 
+    useEffect(() => {
+        const updateFilteredData = () => {
+            const updatedFilteredData = removeUnknown
+                ? data.filter(el => !Object.values(el).some(value => value?.toString().toLowerCase() === "unknown"))
+                : data;
+            setFilteredData(updatedFilteredData);
+        };
+    
+        updateFilteredData();
+    }, [data, removeUnknown]);
+
+    useEffect(() => {
         // Array to store marker instances
         const markers: mapboxgl.Marker[] = [];
 
@@ -17,9 +56,7 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
             setkmlData(_ => []);
             // Create an empty mapboxgl bounds object
             const bounds = new mapboxgl.LngLatBounds();
-            const filteredData = removeUnknown
-                ? data.filter(el => el[legend as keyof xlsDataType] !== "Unknown")
-                : data;
+
             // Loop through each coordinate in the array
             filteredData.forEach(el => {
                 // Create a marker for each coordinate
@@ -74,7 +111,7 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
             map.current.fitBounds(bounds, { padding: 50 });
         };
 
-        if (data.length !== 0 && showLayer.marker) {
+        if (filteredData.length !== 0 && showLayer.marker) {
             createMarkers();
         }
 
@@ -84,34 +121,7 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
                 marker.remove();
             });
         };
-    }, [data, legend, showLayer.marker, removeUnknown]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const res = await axios.get("https://sheetdb.io/api/v1/zbqakzbdg0rah?sheet=Int%20Main%20Sheet");
-            const processedData = res.data.map((item: any) => ({
-                Date: item.Date,
-                IntContent: item['Int Content'],
-                Name: item.Name,
-                Name_: item.Name_,
-                IntUniqueNo: parseInt(item['Int Unique No']),
-                GR: item.GR,
-                Strength: parseInt(item.Strength),
-                Source: item.Source,
-                Type: item.Type,
-                Rank: item.Rank,
-                AreaCommittee: item['Area Committee'],
-                District: item.District,
-                PoliceStation: item['Police Station'],
-                Division: item.Division,
-                Week: parseInt(item.Week),
-                Month: parseInt(item.Month),
-            }));
-            setData(processedData);
-            setXlsData(processedData);
-        }
-        showLayer.marker && fetchData();
-    }, [showLayer.marker]);
+    }, [filteredData, legend, showLayer.marker]);
 
     return (
         <>

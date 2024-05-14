@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export const Filters = ({ data, setData, xlsData, legend, setLegend, selectedFilters: initialSelectedFilters, setSelectedFilters: setInitialSelectedFilters }: FiltersProps) => {
+export const Filters = ({ data, setData, xlsData, legend, setLegend, selectedFilters: initialSelectedFilters, setSelectedFilters: setInitialSelectedFilters,removeUnknown }: FiltersProps) => {
     const [filterLabels, setFilterLabels] = useState<string[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
@@ -162,11 +162,15 @@ export const Filters = ({ data, setData, xlsData, legend, setLegend, selectedFil
     const getSuggestions = (selected: string) => {
         const uniqueValues = Array.from(new Set(xlsData.map((item) => item[selected as keyof xlsDataType])));
         const isNumericField = ['Month', 'Strength', 'IntUniqueNo', 'Week'].includes(selected);
-
+        console.log(uniqueValues.length);
+        const filteredValues = removeUnknown
+          ? uniqueValues.filter((value => value !== null && value !== "Unknown") || (value => value !== null && value !== "ukn"))
+          : uniqueValues.filter(value => value !== null);
+      
         return isNumericField
-            ? uniqueValues.map(value => value !== null ? value.toString() : '')
-            : uniqueValues.map(value => value !== null ? value.toString().toLowerCase() : '');
-    };
+          ? filteredValues.map(value => value!==null? value.toString(): '')
+          : filteredValues.map(value => value!==null? value.toString().toLowerCase(): '');
+      };
 
 
     return (

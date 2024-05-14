@@ -31,6 +31,7 @@ interface FiltersProps {
     xlsData: xlsDataType[];
     selectedFilters: selectedFiltersType;
     setSelectedFilters: (filters: selectedFiltersType) => void;
+    removeUnknown: boolean;
   };
 
   interface KmlGeneratorProps {
