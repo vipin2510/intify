@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import axios from "axios";
 import { stringToColor } from "@/lib/utils";
 
-export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, map }: XLSProps) => {
+export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, map,removeUnknown,setRemoveUnknown }: XLSProps) => {
     const parseDMS = (dms: string): number => {
         const regex = /(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)\s*"/; // Regex to match degrees, minutes, and seconds
         const match = dms.match(regex);
@@ -33,12 +33,7 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
     const convertGRToDecimal = (gr: string): [number, number] => {
         let decimal = gr.trim().split("  ");
         const [lat, lon] = decimal.map(el => parseFloat(el.trim().substring(0, el.length - 2)));
-        console.log(lat,lon)
-        console.log("asd")
         if (!isNaN(lat) && !isNaN(lon)){
-            console.log("tut");
-            console.log(lat,lon);
-
             return [lon, lat];
     }
         const regex = /(\d+°\s*\d+'\s*\d+(?:\.\d+)?"\s*[NS])\s+(\d+°\s*\d+'\s*\d+(?:\.\d+)?"\s*[EW])/;
@@ -123,18 +118,14 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
             setkmlData(_ => []);
             // Create an empty mapboxgl bounds object
             const bounds = new mapboxgl.LngLatBounds();
-
+            const filteredData = removeUnknown
+            ? data.filter(el => el[legend as keyof xlsDataType] !== "Unknown")
+            : data;
             // Loop through each coordinate in the array
-            data.forEach(el => {
+            filteredData.forEach(el => {
                 // Create a marker for each coordinate
-                let a = 1
                 if (el.GR && el.GR.length > 0) {
                     const coordinates = convertGRToDecimal(el.GR) as [number, number];
-                    
-                    a=a+1
-                    console.log(coordinates.toString());
-                    console.log(el.GR);
-                    console.log(el.IntUniqueNo);
                     // Extend the bounds to include each coordinate
                     if (!isNaN(coordinates[0]) && !isNaN(coordinates[1])) {
                         const markerElement = document.createElement('div');
@@ -196,10 +187,10 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
                 marker.remove();
             });
         };
-    }, [data, legend, showLayer.marker]);
+    }, [data, legend, showLayer.marker,removeUnknown]);
     useEffect(() => {
         const fetchData = async () => {
-            const res = await axios.get("https://sheetdb.io/api/v1/vqck1vghtwyy3?sheet=Int%20Main%20Sheet");
+            const res = await axios.get("https://sheetdb.io/api/v1/zbqakzbdg0rah?sheet=Int%20Main%20Sheet");
             const processedData = res.data.map((item: any) => ({
                 Date: item.Date,
                 IntContent: item['Int Content'],
@@ -228,6 +219,12 @@ export const XLS = ({ showLayer, data, setData, legend, setkmlData, setXlsData, 
         <>
             <label htmlFor="xls-file" className='absolute hidden top-4 left-4 p-2 px-3 z-10 bg-blue-500 text-white rounded'>Import Excel</label>
             <input id='xls-file' type='file' onChange={handleFile} className='hidden' />
+            <button
+        onClick={() => setRemoveUnknown(!removeUnknown)}
+        className="absolute top-16 right-4 p-2 px-3 z-10 bg-red-500 text-white rounded"
+      >
+        {removeUnknown ? "Include Unknown" : "Remove Unknown"}
+      </button>
         </>
     );
 };

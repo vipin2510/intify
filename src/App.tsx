@@ -15,7 +15,7 @@ const App = () => {
   const [legend, setLegend] = useState<string>("Name");
   const [showLayer, setShowLayer] = useState<showLayerType>({ marker: true, border: false });
   const [selectedFilters, setSelectedFilters] = useState<selectedFiltersType>({});
-
+  const [removeUnknown, setRemoveUnknown] = useState<boolean>(false);
   return (
     <main className='flex flex-col h-screen'>
       <div className='absolute top-0 left-0 bg-white m-4 z-10 p-2 px-3 rounded-lg flex flex-col gap-y-2'>
@@ -28,8 +28,8 @@ const App = () => {
           <label htmlFor="enable-border" className='text-sm'>Borders</label>
         </div>
       </div>
-      <XLS showLayer={showLayer} map={map} legend={legend} data={data} setData={setData} setXlsData={setXlsData} setkmlData={setkmlData} />
-      <KmlGenerator kmlData={kmlData} legendName={legend} selectedFilters={selectedFilters} />
+      <XLS showLayer={showLayer} map={map} legend={legend} data={data} setData={setData} setXlsData={setXlsData} setkmlData={setkmlData} removeUnknown={removeUnknown} setRemoveUnknown={setRemoveUnknown} />
+      <KmlGenerator kmlData={kmlData} legendName={legend} selectedFilters={selectedFilters} removeUnknown={removeUnknown}/>
       <Map map={map} />
       <Filters data={data} legend={legend} setLegend={setLegend} xlsData={xlsData} setData={setData} selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters}/>
       <Layer showLayer={showLayer} map={map} />

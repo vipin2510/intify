@@ -1,8 +1,11 @@
 import { saveAs } from 'file-saver';
 
-export const KmlGenerator = ({ kmlData, selectedFilters, legendName }: KmlGeneratorProps) => {
+export const KmlGenerator = ({ kmlData, selectedFilters, legendName,removeUnknown }: KmlGeneratorProps) => {
   const handleDownloadKML = () => {
-    const kml = generateKML(kmlData);
+    const filteredKmlData = removeUnknown
+    ? kmlData.filter(item => item.name !== "Unknown")
+    : kmlData;
+    const kml = generateKML(filteredKmlData);
     const selectedFiltersString = Object.entries(selectedFilters)
       .filter(([key]) => key !== 'startDate' && key !== 'endDate') // Exclude startDate and endDate
       .map(([key, value]) => `${key}=${value}`)

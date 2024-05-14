@@ -37,6 +37,7 @@ interface FiltersProps {
     kmlData: kmlDataType[];
     legendName: string;
     selectedFilters: selectedFiltersType;
+    removeUnknown: boolean;
   }
 
 interface XLSProps {
@@ -47,6 +48,8 @@ interface XLSProps {
     setkmlData: (update: (prev: kmlDataType[]) => kmlDataType[]) => void;
     setXlsData: (data: xlsDataType[]) => void;
     map: any;
+    removeUnknown: boolean;
+    setRemoveUnknown: (value: boolean) => void;
 };
 interface LayerProps {
     showLayer: showLayerType;
