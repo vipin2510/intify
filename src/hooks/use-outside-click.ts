@@ -1,5 +1,3 @@
-// @/lib/hooks/use-outside-click.ts
-
 import { useEffect, useRef } from "react";
 
 export function useOutsideClick(callback: () => void) {
