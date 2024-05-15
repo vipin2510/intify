@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { google } from 'googleapis';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const apiKey = process.env.API_KEY;
-
 
 export const getSpreadsheetData = async (req: Request, res: Response) => {
     const sheets = google.sheets({ version: 'v4', auth: apiKey });
@@ -10,7 +12,6 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
     // The ID and range of the spreadsheet
     const spreadsheetId = process.env.SPREADSHEET_ID;
     const range = 'Int Main Sheet!A1:Z'; // Adjust the range as needed
-    console.log(apiKey, spreadsheetId)
 
     try {
         const response = await sheets.spreadsheets.values.get({
