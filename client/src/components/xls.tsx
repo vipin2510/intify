@@ -24,8 +24,7 @@ export const XLS = ({
       );
       const rows = res.data;
       rows.shift();
-      console.log(rows[0]);
-      const processedData = rows.map((row) => ({
+      const processedData = rows.map((row:any) => ({
         Date: row[0],
         IntContent: row[2],
         Name: row[4],
@@ -44,7 +43,6 @@ export const XLS = ({
         Week: parseInt(row[16]),
         Month: parseInt(row[17]),
       }));
-      console.log(processedData[2].Name);
       setFilteredData(processedData);
       setData(processedData);
       setXlsData(processedData);

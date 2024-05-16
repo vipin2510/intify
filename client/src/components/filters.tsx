@@ -188,7 +188,6 @@ export const Filters = ({
       "IntUniqueNo",
       "Week",
     ].includes(selected);
-    console.log(uniqueValues.length);
     const filteredValues = removeUnknown
       ? uniqueValues.filter(
           ((value) => value !== null && value !== "Unknown") ||
@@ -199,8 +198,7 @@ export const Filters = ({
     return isNumericField
       ? filteredValues.map((value) => (value !== null ? value.toString() : ""))
       : filteredValues.map((value) =>
-          value !== null ? value.toString().toLowerCase() : "",
-        );
+          value !== null ? String(value).toLowerCase() : "");
   };
 
   return (
@@ -320,7 +318,7 @@ export const Filters = ({
                     className="border border-gray-300 rounded-md px-3 py-2"
                   />
                 </>
-              ) : (
+              ) :  (
                 <AutocompleteInput
                   id={selected}
                   label={SpacedNamed(selected)}
@@ -331,6 +329,7 @@ export const Filters = ({
                   }
                   onChange={(value) => handleChange(value, selected)}
                   suggestions={getSuggestions(selected)}
+                  colorize={selected === "Name_"} // Pass colorize prop for Name and Name_
                 />
               )}
             </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Input } from './ui/input';
+import { stringToColor } from '@/lib/utils';
 
 interface AutocompleteInputProps {
   id: string;
@@ -7,6 +8,7 @@ interface AutocompleteInputProps {
   value: string;
   onChange: (value: string) => void;
   suggestions: string[];
+  colorize?: boolean; // New prop to determine if color should be shown or not
 }
 
 export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
@@ -15,6 +17,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   value,
   onChange,
   suggestions,
+  colorize = false, // Default to false
 }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -49,9 +52,15 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           {filteredSuggestions.map((suggestion) => (
             <li
               key={suggestion}
-              className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+              className="px-4 py-2 cursor-pointer hover:bg-gray-200 flex items-center gap-2"
               onClick={() => handleSuggestionClick(suggestion)}
             >
+              {colorize && (
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: stringToColor(suggestion) }}
+                />
+              )}
               {suggestion}
             </li>
           ))}
