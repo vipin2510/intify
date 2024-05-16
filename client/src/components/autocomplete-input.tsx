@@ -8,7 +8,7 @@ interface AutocompleteInputProps {
   value: string;
   onChange: (value: string) => void;
   suggestions: string[];
-  colorize?: boolean; // New prop to determine if color should be shown or not
+  colorize?: boolean;
 }
 
 export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
@@ -17,7 +17,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   value,
   onChange,
   suggestions,
-  colorize = false, // Default to false
+  colorize = false,
 }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -48,7 +48,10 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         className="border-slate-300"
       />
       {showSuggestions && filteredSuggestions.length > 0 && (
-        <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+        <ul
+          className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: '#888 #f1f1f1' }}
+        >
           {filteredSuggestions.map((suggestion) => (
             <li
               key={suggestion}
