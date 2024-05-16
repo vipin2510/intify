@@ -49,7 +49,6 @@ export const RouteManager: React.FC<RouteManagerProps> = ({
           month: '2-digit',
           year: 'numeric',
         });
-        console.log(formattedDate)
   
       const popup = new mapboxgl.Popup().setHTML(`<h3>Somdu Makdam:${formattedDate}</h3>`);
       const markerInfo = document.createElement("div");
@@ -137,16 +136,12 @@ export const RouteManager: React.FC<RouteManagerProps> = ({
   const getDayDifference = (dateString1: string, dateString2: string) => {
     const date1 = new Date(dateString1.split('/').reverse().join('/'));
     const date2 = new Date(dateString2.split('/').reverse().join('/'));
-    console.log(date2)
-    console.log(date1)
     if (isNaN(date1.getTime()) || isNaN(date2.getTime())) {
       // Handle invalid date strings here
       return 'Invalid date';
     }
   
     const diffInMs = Math.abs(date1.getTime() - date2.getTime());
-    console.log(diffInMs)
-    console.log(Math.ceil(diffInMs / (1000 * 60 * 60 * 24)))
     return Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
   };
   return (
