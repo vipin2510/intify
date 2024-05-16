@@ -63,3 +63,7 @@ type showLayerType = {
     marker: boolean;
     border: boolean;
 }
+interface RouteManagerProps {
+    data: xlsDataType[];
+    map: any;
+  }

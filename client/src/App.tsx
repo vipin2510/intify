@@ -6,6 +6,7 @@ import { KmlGenerator } from '@/components/kml-generator';
 import { Filters } from '@/components/filters';
 import { Toaster } from './components/ui/sonner';
 import { Layer } from './components/layer';
+import { RouteManager } from './components/RouteManager';
 
 const App = () => {
   const map = useRef(null);
@@ -39,6 +40,7 @@ const App = () => {
       <Filters data={data} legend={legend} setLegend={setLegend} xlsData={xlsData} setData={setData} selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters} removeUnknown={removeUnknown} />
       <Layer showLayer={showLayer} map={map} />
       <Toaster position='top-center' />
+      <RouteManager data={data} map={map} />
     </main>
   );
 };
