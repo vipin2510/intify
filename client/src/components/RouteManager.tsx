@@ -36,10 +36,10 @@ export const RouteManager: React.FC<RouteManagerProps> = ({
         return dateA.getTime() - dateB.getTime();
       });
   
-      const coordinates: [number, number][] = [];
+    const coordinates: [number, number][] = [];
     let previousMarker: { marker: mapboxgl.Marker; date: string } | null = null;
   
-    sortedData.forEach((item) => {
+    sortedData.forEach((item, index) => {
       const [longitude, latitude] = convertGRToDecimal(item.GR);
       coordinates.push([longitude, latitude]);
   
@@ -56,8 +56,11 @@ export const RouteManager: React.FC<RouteManagerProps> = ({
       markerInfo.className = "marker-info";
       markerInfo.innerHTML = formattedDate;
       markerInfo.style.backgroundColor = "#ffffff";
+  
+      // Set marker color based on index
+      markerInfo.style.backgroundColor = index === 0 ? '#00ff00' : index === sortedData.length - 1 ? '#ff0000' : '#ffffff';
+  
       const marker = new mapboxgl.Marker({
-        color: '#ff0000',
         element: markerInfo,
       })
         .setLngLat([longitude, latitude])
