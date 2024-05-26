@@ -8,10 +8,11 @@ const apiKey = process.env.API_KEY;
 
 export const getSpreadsheetData = async (req: Request, res: Response) => {
     const sheets = google.sheets({ version: 'v4', auth: apiKey });
-    
+    const name = (req.query.name as string).split("+").join(" ");
+
     // The ID and range of the spreadsheet
     const spreadsheetId = process.env.SPREADSHEET_ID;
-    const range = 'Int Main Sheet!A1:Z'; // Adjust the range as needed
+    const range = `${name}!A1:Z`; // Adjust the range as needed
 
     try {
         const response = await sheets.spreadsheets.values.get({
