@@ -6,6 +6,10 @@ dotenv.config();
 
 const apiKey = process.env.API_KEY;
 
+function processField(field: string) {
+    return field.replace(/\n/g, '\\n');
+}
+
 export const getSpreadsheetData = async (req: Request, res: Response) => {
     const sheets = google.sheets({ version: 'v4', auth: apiKey });
     const name = (req.query.name as string).split("+").join(" ");
@@ -20,7 +24,19 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
             range,
         });
 
-        const rows: any = response.data.values;
+        let rows: any = response.data.values;
+
+        if (name.toLowerCase() === 'profile') {
+            rows = rows.shift();
+            rows = response.data.values?.map(row => ({
+                id: processField(row[0] || ''),
+                name: processField(row[1] || ''),
+                rank: processField(row[2] || ''),
+                reward: processField(row[3] || ''),
+                weapon: processField(row[4] || '')
+            }));
+        }
+
         if (rows.length) {
             res.status(200).json(rows);
         } else {
