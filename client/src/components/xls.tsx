@@ -31,17 +31,17 @@ export const XLS = ({
         Name_: row[3],
         IntUniqueNo: parseInt(row[1]),
         GR: row[5],
-        Strength: parseInt(row[6]),
-        // 7 is for int confidence please ignore
-        Source: row[8],
-        Type: row[10],
+        Strength: parseInt(row[8]),
+        // 9 is for int confidence please ignore
+        Source: row[10],
+        Type: row[11],
         Rank: row[12],
-        AreaCommittee: row[8],
-        District: row[11],
-        PoliceStation: row[13],
-        Division: row[15],
-        Week: parseInt(row[16]),
-        Month: parseInt(row[17]),
+        AreaCommittee: row[13],
+        District: row[14],
+        PoliceStation: row[15],
+        Division: row[17],
+        Week: parseInt(row[18]),
+        Month: parseInt(row[19]),
       }));
       setFilteredData(processedData);
       setData(processedData);
