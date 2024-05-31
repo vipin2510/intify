@@ -33,10 +33,10 @@ export const XLS = ({
         GR: row[5],
         Strength: parseInt(row[6]),
         // 7 is for int confidence please ignore
-        Source: row[10],
+        Source: row[8],
         Type: row[9],
-        Rank: row[8],
-        AreaCommittee: row[11],
+        Rank: row[11],
+        AreaCommittee: row[10],
         District: row[12],
         PoliceStation: row[13],
         Division: row[15],
