@@ -33,7 +33,11 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
                 name: processField(row[1] || ''),
                 rank: processField(row[2] || ''),
                 reward: processField(row[3] || ''),
-                weapon: processField(row[4] || '')
+                weapon: processField(row[4] || ''),
+                division: processField(row[5] || ''),
+                areaCommittee: processField(row[6] || ''),
+                company: processField(row[7] || ''),
+                workArea: processField(row[8] || ''),
             }));
         }
 
