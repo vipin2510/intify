@@ -37,7 +37,12 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
                 division: processField(row[5] || ''),
                 areaCommittee: processField(row[6] || ''),
                 company: processField(row[7] || ''),
-                workArea: processField(row[8] || ''),
+                platoon: processField(row[8] || ''),
+                workArea: processField(row[9] || ''),
+                los: processField(row[10] || ''),
+                lgs: processField(row[11] || ''),
+                jury: processField(row[12] || ''),
+                alive: processField(row[13] || ''),
             }));
         }
 
