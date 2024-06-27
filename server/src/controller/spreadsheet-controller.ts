@@ -25,24 +25,30 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
         });
 
         let rows: any = response.data.values;
-
-        if (name.toLowerCase() === 'profile') {
+        console.log(name.toLowerCase() === 'naxal profile');
+        if (name.toLowerCase() === 'naxal profile') {
             rows = rows.shift();
             rows = response.data.values?.map(row => ({
                 id: processField(row[0] || ''),
                 name: processField(row[1] || ''),
-                rank: processField(row[2] || ''),
-                reward: processField(row[3] || ''),
-                weapon: processField(row[4] || ''),
-                division: processField(row[5] || ''),
-                areaCommittee: processField(row[6] || ''),
-                company: processField(row[7] || ''),
-                platoon: processField(row[8] || ''),
-                workArea: processField(row[9] || ''),
-                los: processField(row[10] || ''),
-                lgs: processField(row[11] || ''),
-                jury: processField(row[12] || ''),
-                alive: processField(row[13] || ''),
+                description: processField(row[2] || ''),
+                rank: processField(row[3] || ''),
+                level: processField(row[4] || ''),
+                central: processField(row[5] || ''),
+                zonal: processField(row[6] || ''),
+                subZonal: processField(row[7] || ''),
+                division: processField(row[8] || ''),
+                areaCommittee: processField(row[9] || ''),
+                company: processField(row[10] || ''),
+                platoon: processField(row[11] || ''),
+                rpc: processField(row[12] || ''),
+                weapon: processField(row[13] || ''),
+                electronicGadget: processField(row[14] || ''),
+                status: processField(row[15] || ''),
+                otherInfo: processField(row[16] || ''),
+                resident: processField(row[17] || ''),
+                district: processField(row[18] || ''),
+                workArea: processField(row[19] || ''),
             }));
         }
 
