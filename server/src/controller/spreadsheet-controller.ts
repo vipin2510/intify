@@ -10,6 +10,15 @@ function processField(field: string) {
     return field.replace(/\n/g, '\\n');
 }
 
+function removeEmptyValues(obj: any) {
+    for (let key in obj) {
+        if (Array.isArray(obj[key])) {
+            obj[key] = obj[key].filter((value: string) => value !== null && value !== undefined && value !== '');
+        }
+    }
+    return obj;
+}
+
 export const getSpreadsheetData = async (req: Request, res: Response) => {
     const sheets = google.sheets({ version: 'v4', auth: apiKey });
     const name = (req.query.name as string).split("+").join(" ");
@@ -25,7 +34,6 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
         });
 
         let rows: any = response.data.values;
-        console.log(name.toLowerCase() === 'naxal profile');
         if (name.toLowerCase() === 'naxal profile') {
             rows = rows.shift();
             rows = response.data.values?.map(row => ({
@@ -50,6 +58,55 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
                 district: processField(row[18] || ''),
                 workArea: processField(row[19] || ''),
             }));
+        }
+        else if (name.toLowerCase() === 'db-naxal') {
+            rows = rows.shift();
+            let filterTypes: {
+                rank: string[],
+                level: string[],
+                central: string[],
+                zonal: string[],
+                subZonal: string[],
+                division: string[],
+                areaCommittee: string[],
+                company: string[],
+                platoon: string[],
+                weapon: string[],
+                electronicGadget: string[],
+                status: string[],
+                rpc: string[]
+            } = {
+                rank: [],
+                level: [],
+                central: [],
+                zonal: [],
+                subZonal: [],
+                division: [],
+                areaCommittee: [],
+                company: [],
+                platoon: [],
+                weapon: [],
+                electronicGadget: [],
+                status: [],
+                rpc: []
+            };
+            response.data.values?.map(row => {
+                filterTypes.rank.push(processField(row[12] || ''));
+                filterTypes.level.push(processField(row[0] || ''));
+                filterTypes.central.push(processField(row[1] || ''));
+                filterTypes.zonal.push(processField(row[2] || ''));
+                filterTypes.subZonal.push(processField(row[3] || ''));
+                filterTypes.division.push(processField(row[4] || ''));
+                filterTypes.areaCommittee.push(processField(row[5] || ''));
+                filterTypes.company.push(processField(row[6] || ''));
+                filterTypes.platoon.push(processField(row[7] || ''));
+                filterTypes.rpc.push(processField(row[8] || ''));
+                filterTypes.weapon.push(processField(row[9] || ''));
+                filterTypes.electronicGadget.push(processField(row[10] || ''));
+                filterTypes.status.push(processField(row[11] || ''));
+            });
+            filterTypes = removeEmptyValues(filterTypes);
+            return res.status(200).json(filterTypes);
         }
 
         if (rows.length) {
