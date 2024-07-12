@@ -1,34 +1,79 @@
 import express, { Request, Response } from "express";
 import spreadsheetRoute from "./routes/spreadsheet";
-import CORS from "cors";
+import cors from "cors";
+import { OAuth2Client } from 'google-auth-library';
+import { AUTH_CONFIG } from './config';
 
 const allowedOrigins = ["http://localhost:5173", "https://intify.vercel.app"];
+const allowedEmails = AUTH_CONFIG.ALLOWED_EMAILS;
+
+
+const App = express();
 
 // Configure CORS middleware
-const corsOptions = {
-  origin: (
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void,
-  ) => {
-    // Check if the incoming origin is allowed
-    if (allowedOrigins.indexOf(origin || "") !== -1 || !origin) {
+App.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
-};
+  credentials: true,
+}));
 
-const App = express();
-App.use(CORS(corsOptions));
 App.use(express.json());
+
+// Initialize Google OAuth client
+const client = new OAuth2Client("1005611396378-honq0b49vtpp6pvoe0hkv53jjt8k9nk3.apps.googleusercontent.com");
 
 App.get("/", (req: Request, res: Response) => {
   res.status(200).send("Server Running correctly");
 });
 
+// New endpoint for token verification
+App.post('/api/verify-token', async (req: Request, res: Response) => {
+  const { token } = req.body;
+  
+  if (!token) {
+    console.log("Login attempt failed: No token provided");
+    return res.status(400).json({ error: 'Token is required' });
+  }
+
+  try {
+    const userInfo = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
+    const userData = await userInfo.json();
+
+    if (!userData || !userData.email) {
+      console.log("Login attempt failed: Invalid user data");
+      return res.status(401).json({ error: 'Invalid user data' });
+    }
+
+    console.log("Login attempt details:");
+    console.log(`- Email: ${userData.email}`);
+    console.log(`- Name: ${userData.name || 'Not available'}`);
+    console.log(`- Picture: ${userData.picture || 'Not available'}`);
+    console.log(`- Google ID: ${userData.sub}`);
+
+    if (userData.email && allowedEmails.includes(userData.email)) {
+      console.log(`User authorized: ${userData.email}`);
+      res.json({ 
+        userId: userData.sub, 
+        email: userData.email,
+        name: userData.name,
+        picture: userData.picture
+      });
+    } else {
+      console.log(`User not authorized. Email: ${userData.email}`);
+      res.status(403).json({ error: 'User not authorized' });
+    }
+  } catch (error) {
+    console.error("Token verification error:", error);
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
 App.use("/api", spreadsheetRoute);
 
-App.listen(5000, () => {
-  console.log("Server running at http://localhost:5000");
+App.listen(5001, () => {
+  console.log("Server running at http://localhost:5001");
 });
