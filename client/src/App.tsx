@@ -45,7 +45,7 @@ const App = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:5001/api/verify-token', {
+        const response = await fetch('https://intify-server.vercel.app/api/verify-token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
