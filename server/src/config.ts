@@ -7,5 +7,5 @@ export const AUTH_CONFIG = {
       "test@example.com"
       // Add more authorized email addresses here
     ],
-    GOOGLE_CLIENT_ID: "634705797878-g989aieoamebdm6ietcp5qlj8n6pvilu.apps.googleusercontent.com"
+    GOOGLE_CLIENT_ID: "31972503524-c5ao35e1arcjb53ruskm8cpr36gm4dg5.apps.googleusercontent.com"
   };
