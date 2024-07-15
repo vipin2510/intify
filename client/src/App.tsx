@@ -8,7 +8,7 @@ import { Toaster } from './components/ui/sonner';
 import { Layer } from './components/layer';
 import { RouteManager } from './components/RouteManager';
 import { AUTH_CONFIG } from './config';
-
+import { Analytics } from "@vercel/analytics/react"
 
 const App = () => {
   const map = useRef(null);
@@ -122,6 +122,7 @@ const App = () => {
             <Layer showLayer={showLayer} map={map} />
             <Toaster position='top-center' />
             <RouteManager data={data} map={map} />
+            <Analytics/>
           </>
         )}
       </main>
