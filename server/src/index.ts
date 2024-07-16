@@ -25,7 +25,7 @@ App.use(cors({
 App.use(express.json());
 
 // Initialize Google OAuth client
-const client = new OAuth2Client("1005611396378-honq0b49vtpp6pvoe0hkv53jjt8k9nk3.apps.googleusercontent.com");
+const client = new OAuth2Client("31972503524-c5ao35e1arcjb53ruskm8cpr36gm4dg5.apps.googleusercontent.com");
 
 App.get("/", (req: Request, res: Response) => {
   res.status(200).send("Server Running correctly");
