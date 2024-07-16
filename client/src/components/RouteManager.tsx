@@ -128,7 +128,7 @@ export const RouteManager: React.FC<RouteManagerProps> = ({
     // Add the line background layer
     map.current.addLayer({
       type: 'line',
-      source: source  ,
+      source: source,
       id: 'line-background',
       paint: {
         'line-color': 'red',
@@ -195,7 +195,7 @@ export const RouteManager: React.FC<RouteManagerProps> = ({
 
     let step = 0;
 
-    function animateDashArray(timestamp:any) {
+    function animateDashArray(timestamp: any) {
       const newStep = parseInt(String((timestamp / 50) % dashArraySequence.length));
 
       if (newStep !== step) {
@@ -219,13 +219,11 @@ export const RouteManager: React.FC<RouteManagerProps> = ({
   };
 
   return (
-    <div className="absolute top-24 left-4 z-10 bg-white p-2 rounded-md shadow">
-      <button
-        onClick={() => (isRoutesGenerated ? clearRoutes() : generateRoutes())}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        {isRoutesGenerated ? 'Clear Routes' : 'Generate Routes'}
-      </button>
-    </div>
+    <button
+      onClick={() => (isRoutesGenerated ? clearRoutes() : generateRoutes())}
+      className="bg-blue-500 text-white text-sm px-4 py-1 rounded"
+    >
+      {isRoutesGenerated ? 'Clear Routes' : 'Generate Routes'}
+    </button>
   );
 };

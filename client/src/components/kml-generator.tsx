@@ -43,6 +43,6 @@ export const KmlGenerator = ({ kmlData, selectedFilters, legendName }: KmlGenera
   };
 
   return (
-    <button onClick={handleDownloadKML} className='bg-orange-500 text-white p-2 px-3 absolute z-10 right-4 top-4 rounded-md'>Generate KML</button>
+    <button onClick={handleDownloadKML} className='bg-orange-500 text-white text-sm p-2 px-3 absolute z-10 right-4 top-4 rounded-md'>Generate KML</button>
   );
 };

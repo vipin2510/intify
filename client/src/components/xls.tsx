@@ -163,7 +163,7 @@ export const XLS = ({
       />
       <button
         onClick={() => setRemoveUnknown(!removeUnknown)}
-        className="absolute top-16 right-4 p-2 px-3 z-10 bg-red-500 text-white rounded"
+        className="absolute text-sm top-16 right-4 p-2 px-3 z-10 bg-red-500 text-white rounded"
       >
         {removeUnknown ? "Include Unknown" : "Remove Unknown"}
       </button>
