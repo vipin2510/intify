@@ -4,6 +4,7 @@ import axios from "axios";
 import { stringToColor } from "@/lib/utils";
 import { convertGRToDecimal } from "@/utils/conversion";
 import { handleFile } from "@/utils/file-reader";
+
 export const XLS = ({
   showLayer,
   data,
@@ -32,7 +33,6 @@ export const XLS = ({
         IntUniqueNo: parseInt(row[1]),
         GR: row[5],
         Strength: parseInt(row[8]),
-        // 9 is for int confidence please ignore
         Source: row[10],
         Type: row[11],
         Rank: row[12],
@@ -67,71 +67,121 @@ export const XLS = ({
   }, [data, removeUnknown]);
 
   useEffect(() => {
-    // Array to store marker instances
     const markers: mapboxgl.Marker[] = [];
+    let lineLayerId = 'marker-lines';
 
-    // Function of creating markers with specific colors generated
     const createMarkers = () => {
       setkmlData((_) => []);
-      // Create an empty mapboxgl bounds object
       const bounds = new mapboxgl.LngLatBounds();
+      const lineFeatures: GeoJSON.Feature[] = [];
 
-      // Loop through each coordinate in the array
-      filteredData.forEach((el) => {
-        // Create a marker for each coordinate
+      // Group data by coordinates
+      const groupedData = filteredData.reduce((acc, el) => {
         if (el.GR && el.GR.length > 0) {
-          const coordinates = convertGRToDecimal(el.GR) as [number, number];
-          // Extend the bounds to include each coordinate
+          const coordinates = convertGRToDecimal(el.GR);
           if (!isNaN(coordinates[0]) && !isNaN(coordinates[1])) {
-            const markerElement = document.createElement("div");
-            markerElement.className = "marker";
-
-            // Create marker icon
-            const markerIcon = document.createElement("div");
-            markerIcon.className = "marker-icon";
-            markerElement.appendChild(markerIcon);
-            markerIcon.style.backgroundRepeat = "no-repeat";
-
-            // Create marker info
-            const markerInfo = document.createElement("div");
-
-            markerInfo.className = "marker-info";
-            markerInfo.innerHTML = `<h3>${el[legend as keyof xlsDataType]}</h3>`;
-
-            // Generating specific colors according to Name_ field
-            markerInfo.style.backgroundColor = stringToColor(el.Name_);
-
-            markerElement.appendChild(markerInfo);
-
-            // Creating popup
-            const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-              `<h3>${el["IntUniqueNo" as keyof xlsDataType]}: ${el["IntContent" as keyof xlsDataType]} </h3>`,
-            );
-
-            const marker = new mapboxgl.Marker({
-              element: markerElement,
-            })
-              .setLngLat(coordinates)
-              .setPopup(popup)
-              .addTo(map.current);
-
-            markers.push(marker);
-
-            // Extend the bounds to include each coordinate
-            bounds.extend(coordinates);
-
-            // Generating kml according to the filterd or initial data
-            const newKmlData = {
-              name: el[legend as keyof xlsDataType],
-              longitude: coordinates[0],
-              latitude: coordinates[1],
-            } as kmlDataType;
-            setkmlData((prev: kmlDataType[]) => [...prev, newKmlData]);
+            const key = `${coordinates[0]},${coordinates[1]}`;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(el);
           }
+        }
+        return acc;
+      }, {} as Record<string, typeof filteredData>);
+
+      Object.entries(groupedData).forEach(([key, group]) => {
+        const [lng, lat] = key.split(',').map(Number);
+        const baseCoordinates: [number, number] = [lng, lat];
+
+        // Create a central marker
+        const centralMarkerElement = document.createElement("div");
+        centralMarkerElement.className = "central-marker";
+        const centralMarker = new mapboxgl.Marker(centralMarkerElement)
+          .setLngLat(baseCoordinates)
+          .addTo(map.current);
+        markers.push(centralMarker);
+
+        group.forEach((el, index) => {
+          const angle = (index / group.length) * 2 * Math.PI;
+          const radius = 0.0001 * Math.ceil(group.length / 8);
+          const offsetLng = baseCoordinates[0] + radius * Math.cos(angle);
+          const offsetLat = baseCoordinates[1] + radius * Math.sin(angle);
+
+          const markerElement = document.createElement("div");
+          markerElement.className = "marker";
+
+          const markerIcon = document.createElement("div");
+          markerIcon.className = "marker-icon";
+          markerElement.appendChild(markerIcon);
+          markerIcon.style.backgroundRepeat = "no-repeat";
+
+          const markerInfo = document.createElement("div");
+          markerInfo.className = "marker-info";
+          markerInfo.innerHTML = `<h3>${el[legend as keyof xlsDataType]}</h3>`;
+          markerInfo.style.backgroundColor = stringToColor(el.Name_);
+          markerElement.appendChild(markerInfo);
+
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+            `<h3>${el["IntUniqueNo" as keyof xlsDataType]}: ${el["IntContent" as keyof xlsDataType]} </h3>`
+          );
+
+          const marker = new mapboxgl.Marker({
+            element: markerElement,
+          })
+            .setLngLat([offsetLng, offsetLat])
+            .setPopup(popup)
+            .addTo(map.current);
+
+          markers.push(marker);
+
+          // Create a line feature
+          const lineFeature: GeoJSON.Feature = {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: [baseCoordinates, [offsetLng, offsetLat]]
+            },
+            properties: {}
+          };
+          lineFeatures.push(lineFeature);
+
+          bounds.extend(baseCoordinates);
+
+          const newKmlData = {
+            name: el[legend as keyof xlsDataType],
+            longitude: offsetLng,
+            latitude: offsetLat,
+          } as kmlDataType;
+          setkmlData((prev: kmlDataType[]) => [...prev, newKmlData]);
+        });
+      });
+
+      // Remove existing layer and source if they exist
+      if (map.current.getLayer(lineLayerId)) {
+        map.current.removeLayer(lineLayerId);
+      }
+      if (map.current.getSource(lineLayerId)) {
+        map.current.removeSource(lineLayerId);
+      }
+
+      // Add a custom layer for lines
+      map.current.addSource(lineLayerId, {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: lineFeatures
         }
       });
 
-      // Fit the map to the bounds
+      map.current.addLayer({
+        id: lineLayerId,
+        type: 'line',
+        source: lineLayerId,
+        paint: {
+          'line-color': '#888',
+          'line-width': 2
+        }
+      });
+
       map.current.fitBounds(bounds, { padding: 50 });
     };
 
@@ -139,11 +189,14 @@ export const XLS = ({
       createMarkers();
     }
 
-    // Removing previous markers after new markers have been created
     return () => {
-      markers.forEach((marker) => {
-        marker.remove();
-      });
+      markers.forEach((marker) => marker.remove());
+      if (map.current.getLayer(lineLayerId)) {
+        map.current.removeLayer(lineLayerId);
+      }
+      if (map.current.getSource(lineLayerId)) {
+        map.current.removeSource(lineLayerId);
+      }
     };
   }, [filteredData, legend, showLayer.marker]);
 
