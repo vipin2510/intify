@@ -1,8 +1,10 @@
 import express, { Request, Response } from "express";
 import spreadsheetRoute from "./routes/spreadsheet";
+import uploadRoute from "./routes/upload";
 import cors from "cors";
 import { OAuth2Client } from 'google-auth-library';
 import { AUTH_CONFIG } from './config';
+import path from "path";
 
 const allowedOrigins = ["http://localhost:5173", "https://intify.vercel.app"];
 const allowedEmails = AUTH_CONFIG.ALLOWED_EMAILS;
@@ -34,7 +36,7 @@ App.get("/", (req: Request, res: Response) => {
 // New endpoint for token verification
 App.post('/api/verify-token', async (req: Request, res: Response) => {
   const { token } = req.body;
-  
+
   if (!token) {
     console.log("Login attempt failed: No token provided");
     return res.status(400).json({ error: 'Token is required' });
@@ -57,8 +59,8 @@ App.post('/api/verify-token', async (req: Request, res: Response) => {
 
     if (userData.email && allowedEmails.includes(userData.email)) {
       console.log(`User authorized: ${userData.email}`);
-      res.json({ 
-        userId: userData.sub, 
+      res.json({
+        userId: userData.sub,
         email: userData.email,
         name: userData.name,
         picture: userData.picture
@@ -73,7 +75,9 @@ App.post('/api/verify-token', async (req: Request, res: Response) => {
   }
 });
 App.use("/api", spreadsheetRoute);
+App.use("/api/upload", uploadRoute);
+App.use("/images", express.static(path.join(__dirname, "..", 'uploads')));
 
-App.listen(5001, () => {
-  console.log("Server running at http://localhost:5001");
+App.listen(5000, () => {
+  console.log("Server running at http://localhost:5000");
 });
