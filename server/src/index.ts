@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import spreadsheetRoute from "./routes/spreadsheet";
 import uploadRoute from "./routes/upload";
+import searchRoute from "./routes/search";
+
 import cors from "cors";
 import { OAuth2Client } from 'google-auth-library';
 import { AUTH_CONFIG } from './config';
@@ -8,7 +10,6 @@ import path from "path";
 
 const allowedOrigins = ["http://localhost:5173", "https://intify.vercel.app"];
 const allowedEmails = AUTH_CONFIG.ALLOWED_EMAILS;
-
 
 const App = express();
 
@@ -76,8 +77,9 @@ App.post('/api/verify-token', async (req: Request, res: Response) => {
 });
 App.use("/api", spreadsheetRoute);
 App.use("/api/upload", uploadRoute);
+App.use("/api/search", searchRoute);
 App.use("/images", express.static(path.join(__dirname, "..", 'uploads')));
 
-App.listen(5000, () => {
+App.listen(5001, () => {
   console.log("Server running at http://localhost:5000");
 });
