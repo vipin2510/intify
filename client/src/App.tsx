@@ -21,13 +21,41 @@ const App = () => {
   const [removeUnknown, setRemoveUnknown] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
       setIsAuthenticated(true);
+      const email = localStorage.getItem('userEmail');
+      if (email) {
+        setUserEmail(email);
+        logUserActivity(email);
+      }
     }
   }, []);
+
+  const logUserActivity = async (email: string) => {
+    try {
+      const response = await fetch('https://intify-server.vercel.app/api/log-activity', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          lastDateOfAccess: new Date().toISOString(),
+          timeStamp: Date.now(),
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to log user activity');
+      }
+    } catch (error) {
+      console.error('Error logging user activity:', error);
+    }
+  };
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -54,10 +82,13 @@ const App = () => {
         });
 
         if (response.ok) {
-          await response.json();
+          const userData = await response.json();
           localStorage.setItem('authToken', token);
+          localStorage.setItem('userEmail', userData.email);
           setIsAuthenticated(true);
+          setUserEmail(userData.email);
           setErrorMessage(null);
+          logUserActivity(userData.email);
         } else {
           const errorData = await response.json();
           console.error('Authentication failed:', errorData.error);
@@ -84,7 +115,9 @@ const App = () => {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setUserEmail(null);
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userEmail');
     setErrorMessage(null);
   };
 
@@ -100,7 +133,12 @@ const App = () => {
             <input onChange={() => handleChange('border')} type="checkbox" id='enable-border' checked={showLayer.border} />
             <label htmlFor="enable-border" className='text-sm'>Borders</label>
           </div>
-          <button onClick={handleLogout} className='text-sm bg-red-500 text-white px-2 py-1 rounded'>Logout</button>
+          {isAuthenticated && (
+            <>
+              <p className='text-sm'>Logged in as: {userEmail}</p>
+              <button onClick={handleLogout} className='text-sm bg-red-500 text-white px-2 py-1 rounded'>Logout</button>
+            </>
+          )}
           <RouteManager data={data} map={map} />
         </div>
         <XLS showLayer={showLayer} map={map} legend={legend} data={data} setData={setData} setXlsData={setXlsData} setkmlData={setkmlData} removeUnknown={removeUnknown} setRemoveUnknown={setRemoveUnknown} />
@@ -114,7 +152,7 @@ const App = () => {
           <div className="z-[999] absolute w-screen h-screen backdrop-blur-md p-4 bg-black bg-opacity-50 flex flex-col justify-center items-center">
             <section className='bg-white p-4 md:gap-y-4 gap-y-2 lg:w-1/3 sm:w-1/2 w-full rounded-md flex flex-col justify-center items-center'>
               <h1 className='md:text-4xl text-2xl text-blue-500 font-[Viga] uppercase'>Intify</h1>
-              <h3 className='md:text-lg text-red-500'>Only authorised People are allowed to access this website.Verify yourself by logging in through your allowed google account</h3>
+              <h3 className='md:text-lg text-red-500'>Only authorised People are allowed to access this website. Verify yourself by logging in through your allowed google account</h3>
               <button onClick={() => login()} className="bg-blue-500 text-white px-4 md:py-2 p-1 mt-2 rounded">
                 Log in
               </button>
