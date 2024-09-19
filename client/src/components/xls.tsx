@@ -42,6 +42,7 @@ export const XLS = ({
         Division: row[17],
         Week: parseInt(row[18]),
         Month: parseInt(row[19]),
+        UID: row[21],
       }));
       setFilteredData(processedData);
       setData(processedData);
@@ -121,7 +122,8 @@ export const XLS = ({
           markerElement.appendChild(markerInfo);
 
           const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-            `<h3>${el["IntUniqueNo" as keyof xlsDataType]}: ${el["IntContent" as keyof xlsDataType]} </h3>`
+            `<h3>${el["IntUniqueNo" as keyof xlsDataType]}: ${el["IntContent" as keyof xlsDataType]} </h3>
+            <a href="/profile/${el.UID}" target="_blank">View Profile</a>`
           );
 
           const marker = new mapboxgl.Marker({

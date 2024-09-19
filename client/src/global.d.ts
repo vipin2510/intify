@@ -15,6 +15,7 @@ type xlsDataType = {
     Division: string;
     Week: number;
     Month: number;
+    UID: string;
 };
 type kmlDataType = {
     name: string;
