@@ -36,7 +36,14 @@ export const NaxalProfile: React.FC = () => {
       try {
         const response = await axios.get('https://intify-server.vercel.app/api/spreadsheet?name=Naxal+Profile');
         const profiles = response.data;
-        const matchingProfile = profiles.find((p: NaxalProfile) => p.id === uid);
+        console.log('Received profiles:', profiles);
+
+        if (!Array.isArray(profiles)) {
+          throw new Error('Received data is not an array');
+        }
+
+        const matchingProfile = profiles.find((p: NaxalProfile) => p && p.id === uid);
+        console.log('Matching profile:', matchingProfile);
         
         if (matchingProfile) {
           setProfile(matchingProfile);
@@ -44,7 +51,8 @@ export const NaxalProfile: React.FC = () => {
           setError('Profile not found');
         }
       } catch (err) {
-        setError('Error fetching profile data');
+        console.error('Error fetching profile data:', err);
+        setError(err instanceof Error ? err.message : 'Error fetching profile data');
       } finally {
         setLoading(false);
       }
@@ -54,7 +62,7 @@ export const NaxalProfile: React.FC = () => {
   }, [uid]);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div>Error: {error}</div>;
   if (!profile) return <div>No profile found</div>;
 
   return (
