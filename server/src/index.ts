@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const allowedOrigins = ["http://localhost:5173", "https://intify.vercel.app"];
+const allowedOrigins = ["http://localhost:5173", "https://intify.vercel.app", "https://naxal-structure.vercel.app"];
 const allowedEmails = AUTH_CONFIG.ALLOWED_EMAILS;
 
 const App = express();
