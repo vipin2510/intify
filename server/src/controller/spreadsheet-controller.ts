@@ -21,6 +21,9 @@ function removeEmptyValues(obj: any) {
 
 export const getSpreadsheetData = async (req: Request, res: Response) => {
     const sheets = google.sheets({ version: 'v4', auth: apiKey });
+    if(!req.query.name)
+        return res.status(404).send("No spreadsheet name provided");
+    
     const name = (req.query.name as string).split("+").join(" ");
 
     // The ID and range of the spreadsheetlet rows: any = response.data.values;
@@ -37,7 +40,7 @@ export const getSpreadsheetData = async (req: Request, res: Response) => {
         if (name.toLowerCase() === 'naxal profile') {
             rows = rows.shift();
             rows = response.data.values?.map(row => parseInt(row[0]) && ({
-                id: processField(row[20] || ''),
+                id: processField(row[22] + row[20] || ''),
                 name: processField(row[1] || ''),
                 description: processField(row[2] || ''),
                 rank: processField(row[3] || ''),
