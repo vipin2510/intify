@@ -14,5 +14,5 @@ export const AUTH_CONFIG = {
         "mukeshpatel7977@gmail.com","prathamsahu2809@gmail.com","krrish9755@gmail.com","kuldeepma93@gmail.com","painkraamrita007@gmail.com"
         // Add more authorized email addresses here
     ],
-    GOOGLE_CLIENT_ID: "31972503524-c5ao35e1arcjb53ruskm8cpr36gm4dg5.apps.googleusercontent.com"
+    GOOGLE_CLIENT_ID: "20470304601-qheou005agkgg61ab2a36amrkbdm846t.apps.googleusercontent.com"
   };
