@@ -12,15 +12,19 @@ export const AUTH_CONFIG = {
         ,"guriarobinson9@gmail.com","O8vinaysahu@gmail/","prabhat140387@gmail.com","opscellnpr@gmail.com","rajasgh18@gmail.com","08vinaysahu@gmail.com","shivkumarabhanpur2903@gmail.com","jaiksahu80@gmail.com",
         "rngautambablu@gmail.com","krishnaksahu05@gmail.com","grogarey29@gmail.com","sureshbhilaicg@gmail.com","riteshyadav.its@gmail.com",
         "mukeshpatel7977@gmail.com","prathamsahu2809@gmail.com","krrish9755@gmail.com","kuldeepma93@gmail.com","painkraamrita007@gmail.com","kuldeepmama93@gmail.com","opscellkanker@gmail.com"
-        ,"apsabadra@gmail.com","apsabadra@gmail.com",'sudhirkumarbesra5142@gmail.com','sudhirkumarbesra5142@gmail.com',
-'salammahadev7@gmail.com','salammahadev7@gmail.com',
-'posendrausendi.650@gmail.com','posendrausendi.650@gmail.com',
-'harrydhruw@gmail.com','harrydhruw@gmail.com',
-'ramsinghits9@gmail.com','ramsinghits9@gmail.com',
-'sagarsitaram195@gmail.com','sagarsitaram195@gmail.com',
-'narayansori16@gmail.com','narayansori16@gmail.com',
-'rupeshpotai1986@gmail.com','rupeshpotai1986@gmail.com',
-'mukeshdhruw0606@gmail.com','mukeshdhruw0606@gmail.com',
+        ,"apsabadra@gmail.com","apsabadra@gmail.com",'sudhirkumarbesra5142@gmail.com',
+'salammahadev7@gmail.com',
+'posendrausendi.650@gmail.com',
+'harrydhruw@gmail.com',
+'ramsinghits9@gmail.com',
+'sagarsitaram195@gmail.com',
+'narayansori16@gmail.com',
+'rupeshpotai1986@gmail.com',
+'mukeshdhruw0606@gmail.com',
+'sukkuramnag315@gmail.com',
+'belkumar59@gmail.com',
+'laikhankorram797@gmail.com',
+'somsushilkumar5@gmail.com'
 
         // Add more authorized email addresses here
     ],
