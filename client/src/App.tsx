@@ -39,7 +39,7 @@ const App = () => {
 
   const logUserActivity = async (email: string) => {
     try {
-      const response = await fetch('https://intify-bijapur-server.vercel.app/api/log-activity', {
+       const response = await fetch('https://intify-server.vercel.app/api/log-activity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
