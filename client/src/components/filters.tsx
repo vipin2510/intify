@@ -12,6 +12,22 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+// Types
+type xlsDataType = Record<string, string | number | Date | null>;
+
+type FiltersProps = {
+  data: xlsDataType[];
+  setData: React.Dispatch<React.SetStateAction<xlsDataType[]>>;
+  xlsData: xlsDataType[];
+  legend: string;
+  setLegend: React.Dispatch<React.SetStateAction<string>>;
+  selectedFilters: Record<string, (string | Date)[]>; // fixed type
+  setSelectedFilters: React.Dispatch<
+    React.SetStateAction<Record<string, (string | Date)[]>>
+  >;
+  removeUnknown: boolean;
+};
+
 export const Filters = ({
   data,
   setData,
@@ -26,9 +42,9 @@ export const Filters = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
 
-  // store filters as arrays
+  // store filters as arrays of (string | Date)
   const [selectedFilters, setSelectedFilters] = useState<
-    Record<string, (string | number | Date)[]>
+    Record<string, (string | Date)[]>
   >(initialSelectedFilters);
 
   useEffect(() => {
@@ -63,10 +79,10 @@ export const Filters = ({
 
     const { startDate, endDate, ...otherFilters } = selectedFilters;
 
-    const filteredByDate = xlsData.filter((data) => {
-      if (data.Date && typeof data.Date === "string") {
+    const filteredByDate = xlsData.filter((row) => {
+      if (row.Date && typeof row.Date === "string") {
         const dataDate = new Date(
-          String(data.Date).split("/").reverse().join("-"),
+          String(row.Date).split("/").reverse().join("-")
         );
 
         if (startDate?.length && endDate?.length) {
@@ -83,15 +99,13 @@ export const Filters = ({
       return true;
     });
 
-    const finalData = filteredByDate.filter((data) => {
+    const finalData = filteredByDate.filter((row) => {
       return Object.entries(otherFilters).every(([key, values]) => {
-        if (!values || values.length === 0) {
-          return true;
-        }
-        const dataValue = data[key as keyof xlsDataType]
-          ?.toString()
-          .toLowerCase();
-        return values.some((val) => dataValue === val.toString().toLowerCase());
+        if (!values || values.length === 0) return true;
+        const dataValue = row[key as keyof xlsDataType]?.toString().toLowerCase();
+        return values.some(
+          (val) => dataValue === val.toString().toLowerCase()
+        );
       });
     });
 
@@ -122,11 +136,11 @@ export const Filters = ({
   const handleChange = (
     value: string | Date,
     selected: string,
-    suggestions: string[],
+    suggestions: string[]
   ) => {
     if (value === "" || value === null) return;
 
-    // validate only from dropdown list
+    // validate only from dropdown list (skip for date)
     if (
       selected !== "startDate" &&
       selected !== "endDate" &&
@@ -156,25 +170,26 @@ export const Filters = ({
 
   const getSuggestions = (selected: string) => {
     const uniqueValues = Array.from(
-      new Set(xlsData.map((item) => item[selected as keyof xlsDataType])),
+      new Set(xlsData.map((item) => item[selected as keyof xlsDataType]))
     );
-    const isNumericField = [
-      "Month",
-      "Strength",
-      "IntUniqueNo",
-      "Week",
-    ].includes(selected);
+
+    const isNumericField = ["Month", "Strength", "IntUniqueNo", "Week"].includes(
+      selected
+    );
+
     const filteredValues = removeUnknown
       ? uniqueValues.filter(
-          (value) => value !== null && value !== "Unknown" && value !== "ukn",
+          (value) => value !== null && value !== "Unknown" && value !== "ukn"
         )
       : uniqueValues.filter((value) => value !== null);
 
-    return isNumericField
-      ? filteredValues.map((value) => (value !== null ? value.toString() : ""))
-      : filteredValues.map((value) =>
-          value !== null ? String(value).toLowerCase() : "",
-        );
+    return filteredValues.map((value) =>
+      value !== null
+        ? isNumericField
+          ? String(value) // normalize numbers to string
+          : String(value).toLowerCase()
+        : ""
+    );
   };
 
   return (
@@ -207,7 +222,7 @@ export const Filters = ({
                   onCheckedChange={(checked) => handleLabels(label, checked)}
                   className={cn(
                     checkFilterIncludes(label) &&
-                      "bg-blue-600 text-white focus:bg-blue-600 focus:text-white focus:bg-opacity-90",
+                      "bg-blue-600 text-white focus:bg-blue-600 focus:text-white focus:bg-opacity-90"
                   )}
                 >
                   {SpacedNamed(label)}
@@ -249,7 +264,7 @@ export const Filters = ({
                   onClick={() => setLegend(label)}
                   className={cn(
                     legend === label &&
-                      "bg-blue-600 text-white focus:bg-blue-600 focus:text-white focus:bg-opacity-90",
+                      "bg-blue-600 text-white focus:bg-blue-600 focus:text-white focus:bg-opacity-90"
                   )}
                 >
                   {SpacedNamed(label)}
