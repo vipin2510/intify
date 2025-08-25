@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { AutocompleteInput } from "./autocomplete-input";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import {
   DropdownMenu,
@@ -21,7 +20,7 @@ type FiltersProps = {
   xlsData: xlsDataType[];
   legend: string;
   setLegend: React.Dispatch<React.SetStateAction<string>>;
-  selectedFilters: Record<string, (string | Date)[]>; // fixed type
+  selectedFilters: Record<string, (string | Date)[]>;
   setSelectedFilters: React.Dispatch<
     React.SetStateAction<Record<string, (string | Date)[]>>
   >;
@@ -42,7 +41,6 @@ export const Filters = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
 
-  // store filters as arrays of (string | Date)
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, (string | Date)[]>
   >(initialSelectedFilters);
@@ -132,23 +130,8 @@ export const Filters = ({
   const checkFilterIncludes = (label: string) =>
     Object.keys(selectedFilters).includes(label);
 
-  // only add if valid suggestion
-  const handleChange = (
-    value: string | Date,
-    selected: string,
-    suggestions: string[]
-  ) => {
+  const handleChange = (value: string | Date, selected: string) => {
     if (value === "" || value === null) return;
-
-    // validate only from dropdown list (skip for date)
-    if (
-      selected !== "startDate" &&
-      selected !== "endDate" &&
-      !suggestions.includes(value.toString().toLowerCase())
-    ) {
-      toast.warning("Please choose a valid option from dropdown!");
-      return;
-    }
 
     setSelectedFilters((prev) => {
       const currentValues = prev[selected] || [];
@@ -186,7 +169,7 @@ export const Filters = ({
     return filteredValues.map((value) =>
       value !== null
         ? isNumericField
-          ? String(value) // normalize numbers to string
+          ? String(value)
           : String(value).toLowerCase()
         : ""
     );
@@ -276,6 +259,8 @@ export const Filters = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Filter Inputs */}
       <div className="w-full flex flex-col flex-wrap p-2 gap-2">
         {selectedFilters ? (
           Object.keys(selectedFilters).map((selected) => {
@@ -295,24 +280,27 @@ export const Filters = ({
                           ?.toString()
                           .split("T")[0] || ""
                       }
-                      onChange={(e) =>
-                        handleChange(e.target.value, selected, suggestions)
-                      }
+                      onChange={(e) => handleChange(e.target.value, selected)}
                       className="border border-gray-300 rounded-md px-3 py-2"
                     />
                   </>
                 ) : (
                   <>
-                    <AutocompleteInput
+                    <label htmlFor={selected} className="text-sm font-medium">
+                      {SpacedNamed(selected)}
+                    </label>
+                    <select
                       id={selected}
-                      label={SpacedNamed(selected)}
-                      value=""
-                      onChange={(value) =>
-                        handleChange(value, selected, suggestions)
-                      }
-                      suggestions={suggestions}
-                      colorize={selected === "Name_"}
-                    />
+                      onChange={(e) => handleChange(e.target.value, selected)}
+                      className="border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="">-- Select --</option>
+                      {suggestions.map((val, idx) => (
+                        <option key={idx} value={val}>
+                          {val}
+                        </option>
+                      ))}
+                    </select>
                     <div className="flex flex-wrap gap-1">
                       {selectedFilters[selected]?.map((val, idx) => (
                         <span
