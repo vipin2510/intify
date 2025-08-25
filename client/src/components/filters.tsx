@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 // Types
-type xlsDataType = Record<string, string | number | Date | null>;
+// type xlsDataType = Record<string, string | number | Date | null>;
 
 type FiltersProps = {
   data: xlsDataType[];

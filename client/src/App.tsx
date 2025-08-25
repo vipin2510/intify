@@ -19,7 +19,7 @@ const App = () => {
   const [xlsData, setXlsData] = useState<xlsDataType[]>([]);
   const [legend, setLegend] = useState<string>("Name");
   const [showLayer, setShowLayer] = useState<showLayerType>({ marker: true, border: false });
-  const [selectedFilters, setSelectedFilters] = useState<selectedFiltersType>({});
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, (string | Date)[]>>({});
   const [removeUnknown, setRemoveUnknown] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -39,7 +39,7 @@ const App = () => {
 
   const logUserActivity = async (email: string) => {
     try {
-      const response = await fetch('https://intify-server.vercel.app/api/log-activity', {
+      const response = await fetch('https://intify-bijapur-server.vercel.app/api/log-activity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ const App = () => {
           return;
         }
 
-        const response = await fetch('https://intify-server.vercel.app/api/verify-token', {
+        const response = await fetch('https://intify-bijapur-server.vercel.app/api/verify-token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
