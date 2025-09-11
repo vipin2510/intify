@@ -45,6 +45,9 @@ export const Filters = ({
     Record<string, (string | Date)[]>
   >(initialSelectedFilters);
 
+  // NEW: Track live text input for each filter
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
+
   useEffect(() => {
     setInitialSelectedFilters(selectedFilters);
   }, [selectedFilters, setInitialSelectedFilters]);
@@ -138,6 +141,9 @@ export const Filters = ({
       if (currentValues.includes(value)) return prev;
       return { ...prev, [selected]: [...currentValues, value] };
     });
+
+    // reset input field after adding
+    setInputValues((prev) => ({ ...prev, [selected]: "" }));
   };
 
   const handleRemoveValue = (selected: string, value: string | Date) => {
@@ -265,8 +271,12 @@ export const Filters = ({
         {selectedFilters ? (
           Object.keys(selectedFilters).map((selected) => {
             const suggestions = getSuggestions(selected);
+            const inputValue = inputValues[selected] || "";
+            const filteredSuggestions = suggestions.filter((s) =>
+              s.toLowerCase().includes(inputValue.toLowerCase())
+            );
             return (
-              <div key={selected} className="flex flex-col gap-y-2">
+              <div key={selected} className="flex flex-col gap-y-2 relative">
                 {selected === "startDate" || selected === "endDate" ? (
                   <>
                     <label htmlFor={selected} className="text-sm font-medium">
@@ -289,19 +299,40 @@ export const Filters = ({
                     <label htmlFor={selected} className="text-sm font-medium">
                       {SpacedNamed(selected)}
                     </label>
-                    <select
+                    <input
+                      type="text"
                       id={selected}
-                      onChange={(e) => handleChange(e.target.value, selected)}
+                      value={inputValue}
+                      onChange={(e) =>
+                        setInputValues((prev) => ({
+                          ...prev,
+                          [selected]: e.target.value,
+                        }))
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleChange(inputValue, selected);
+                        }
+                      }}
                       className="border border-gray-300 rounded-md px-3 py-2"
-                    >
-                      <option value="">-- Select --</option>
-                      {suggestions.map((val, idx) => (
-                        <option key={idx} value={val}>
-                          {val}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex flex-wrap gap-1">
+                      placeholder="Type to search or add"
+                    />
+                    {/* Suggestions dropdown */}
+                    {inputValue && filteredSuggestions.length > 0 && (
+                      <ul className="absolute top-full left-0 w-full bg-white border rounded-md shadow-md max-h-40 overflow-y-auto z-10">
+                        {filteredSuggestions.map((s, idx) => (
+                          <li
+                            key={idx}
+                            className="px-3 py-2 hover:bg-gray-200 cursor-pointer"
+                            onClick={() => handleChange(s, selected)}
+                          >
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="flex flex-wrap gap-1 mt-1">
                       {selectedFilters[selected]?.map((val, idx) => (
                         <span
                           key={idx}
