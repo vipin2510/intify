@@ -11,7 +11,6 @@ export const XLS = ({
   data,
   setData,
   legend,
-  setkmlData,
   setXlsData,
   map,
   removeUnknown,
