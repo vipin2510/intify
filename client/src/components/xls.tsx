@@ -4,6 +4,7 @@ import axios from "axios";
 import { stringToColor } from "@/lib/utils";
 import { convertGRToDecimal } from "@/utils/conversion";
 import { handleFile } from "@/utils/file-reader";
+import { MapMouseEvent } from "mapbox-gl";
 
 export const XLS = ({
   showLayer,
@@ -28,7 +29,7 @@ export const XLS = ({
   useEffect(() => {
     const fetchData = async () => {
       const res = await axios.get(
-        "https://intify-bijapur-server.vercel.app/api/spreadsheet?name=int+main+sheet"
+        "https://intify-server.vercel.app/api/spreadsheet?name=int+main+sheet"
       );
       const rows = res.data;
       rows.shift();
@@ -133,7 +134,7 @@ export const XLS = ({
       data: geojson,
       cluster: true,
       clusterMaxZoom: 14,
-      clusterRadius: 50,
+      clusterRadius: 15,
     });
 
     // Clustered circles
@@ -144,7 +145,7 @@ export const XLS = ({
       filter: ["has", "point_count"],
       paint: {
         "circle-color": "#1978c8",
-        "circle-radius": 20,
+        "circle-radius": 10,
         "circle-opacity": 0.8,
       },
     });
@@ -196,41 +197,49 @@ export const XLS = ({
     });
 
     // Popup on click (single point)
-    map.current.on("click", "unclustered-point", (e) => {
-      const features = map.current?.queryRenderedFeatures(e.point, {
-        layers: ["unclustered-point"],
-      });
-      if (!features || !features[0]) return;
-
-      const { intUniqueNo, intContent, uid } = features[0].properties as any;
-
-      new mapboxgl.Popup()
-        .setLngLat((features[0].geometry as any).coordinates)
-        .setHTML(
-          `<h3>${intUniqueNo}: ${intContent}</h3>
-           <a href="/profile/${uid}" target="_blank">View Profile</a>`
-        )
-        .addTo(map.current!);
+    map.current.on(
+  "click",
+  "unclustered-point",
+  (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
+    const features = map.current?.queryRenderedFeatures(e.point, {
+      layers: ["unclustered-point"],
     });
+    if (!features || !features[0]) return;
+
+    const { intUniqueNo, intContent, uid } = features[0].properties as any;
+
+    new mapboxgl.Popup()
+      .setLngLat((features[0].geometry as any).coordinates)
+      .setHTML(
+        `<h3>${intUniqueNo}: ${intContent}</h3>
+         <a href="/profile/${uid}" target="_blank">View Profile</a>`
+      )
+      .addTo(map.current!);
+  }
+);
 
     // Zoom into clusters
-    map.current.on("click", "clusters", (e) => {
-      const features = map.current?.queryRenderedFeatures(e.point, {
-        layers: ["clusters"],
-      });
-      if (!features || !features[0]) return;
+   map.current.on(
+  "click",
+  "clusters",
+  (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
+    const features = map.current?.queryRenderedFeatures(e.point, {
+      layers: ["clusters"],
+    });
+    if (!features || !features[0]) return;
 
-      const clusterId = features[0].properties?.cluster_id;
-      const source: any = map.current?.getSource("points");
+    const clusterId = features[0].properties?.cluster_id;
+    const source: any = map.current?.getSource("points");
 
-      source.getClusterExpansionZoom(clusterId, (err: any, zoom: number) => {
-        if (err) return;
-        map.current?.easeTo({
-          center: (features[0].geometry as any).coordinates,
-          zoom,
-        });
+    source.getClusterExpansionZoom(clusterId, (err: any, zoom: number) => {
+      if (err) return;
+      map.current?.easeTo({
+        center: (features[0].geometry as any).coordinates,
+        zoom,
       });
     });
+  }
+);
   }, [filteredData, legend, showLayer.marker]);
 
   return (
