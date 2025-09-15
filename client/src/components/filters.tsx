@@ -10,10 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 // Types
-// type xlsDataType = Record<string, string | number | Date | null>;
-
 type FiltersProps = {
   data: xlsDataType[];
   setData: React.Dispatch<React.SetStateAction<xlsDataType[]>>;
@@ -40,13 +39,12 @@ export const Filters = ({
   const [filterLabels, setFilterLabels] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
-
-  const [selectedFilters, setSelectedFilters] = useState<
-    Record<string, (string | Date)[]>
-  >(initialSelectedFilters);
-
-  // NEW: Track live text input for each filter
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, (string | Date)[]>>(initialSelectedFilters);
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
+  const [expanded, setExpanded] = useState(false);
+
+  const glassCard =
+    "bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg";
 
   useEffect(() => {
     setInitialSelectedFilters(selectedFilters);
@@ -77,20 +75,13 @@ export const Filters = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const { startDate, endDate, ...otherFilters } = selectedFilters;
 
     const filteredByDate = xlsData.filter((row) => {
       if (row.Date && typeof row.Date === "string") {
-        const dataDate = new Date(
-          String(row.Date).split("/").reverse().join("-")
-        );
-
+        const dataDate = new Date(String(row.Date).split("/").reverse().join("-"));
         if (startDate?.length && endDate?.length) {
-          return (
-            dataDate >= new Date(startDate[0]) &&
-            dataDate <= new Date(endDate[0])
-          );
+          return dataDate >= new Date(startDate[0]) && dataDate <= new Date(endDate[0]);
         } else if (startDate?.length) {
           return dataDate >= new Date(startDate[0]);
         } else if (endDate?.length) {
@@ -100,15 +91,13 @@ export const Filters = ({
       return true;
     });
 
-    const finalData = filteredByDate.filter((row) => {
-      return Object.entries(otherFilters).every(([key, values]) => {
+    const finalData = filteredByDate.filter((row) =>
+      Object.entries(otherFilters).every(([key, values]) => {
         if (!values || values.length === 0) return true;
         const dataValue = row[key as keyof xlsDataType]?.toString().toLowerCase();
-        return values.some(
-          (val) => dataValue === val.toString().toLowerCase()
-        );
-      });
-    });
+        return values.some((val) => dataValue === val.toString().toLowerCase());
+      })
+    );
 
     setData(finalData);
   };
@@ -130,19 +119,15 @@ export const Filters = ({
     });
   };
 
-  const checkFilterIncludes = (label: string) =>
-    Object.keys(selectedFilters).includes(label);
+  const checkFilterIncludes = (label: string) => Object.keys(selectedFilters).includes(label);
 
   const handleChange = (value: string | Date, selected: string) => {
     if (value === "" || value === null) return;
-
     setSelectedFilters((prev) => {
       const currentValues = prev[selected] || [];
       if (currentValues.includes(value)) return prev;
       return { ...prev, [selected]: [...currentValues, value] };
     });
-
-    // reset input field after adding
     setInputValues((prev) => ({ ...prev, [selected]: "" }));
   };
 
@@ -161,203 +146,210 @@ export const Filters = ({
     const uniqueValues = Array.from(
       new Set(xlsData.map((item) => item[selected as keyof xlsDataType]))
     );
-
-    const isNumericField = ["Month", "Strength", "IntUniqueNo", "Week"].includes(
-      selected
-    );
-
+    const isNumericField = ["Month", "Strength", "IntUniqueNo", "Week"].includes(selected);
     const filteredValues = removeUnknown
-      ? uniqueValues.filter(
-          (value) => value !== null && value !== "Unknown" && value !== "ukn"
-        )
+      ? uniqueValues.filter((value) => value !== null && value !== "Unknown" && value !== "ukn")
       : uniqueValues.filter((value) => value !== null);
-
     return filteredValues.map((value) =>
-      value !== null
-        ? isNumericField
-          ? String(value)
-          : String(value).toLowerCase()
-        : ""
+      value !== null ? (isNumericField ? String(value) : String(value).toLowerCase()) : ""
     );
   };
 
+  const summaryText = () => {
+    const activeFilters = Object.keys(selectedFilters).length;
+    return `${activeFilters} filter${activeFilters !== 1 ? "s" : ""} applied · Legend: ${
+      legend || "None"
+    }`;
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="h-[300px] w-full shadow-xl p-4 shadow-slate-300 flex gap-x-2"
+    <div
+      className={`absolute top-[8rem] left-4 w-[90vw] sm:w-[320px] z-11 ${glassCard}`}
+      style={{ maxHeight: "80vh", overflowY: "auto" }}
     >
-      <div className="w-fit flex flex-col gap-y-2">
-        <h2 className="text-lg">Filters</h2>
-        <DropdownMenu open={isDropdownOpen}>
-          <DropdownMenuTrigger
-            className="w-fit"
-            asChild
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
-            <Button variant="dropDown">Choose Filters</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="flex flex-col gap-y-1 overflow-auto"
-            ref={dropdownRef}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") setIsDropdownOpen(false);
-            }}
-          >
-            {filterLabels.length !== 0 ? (
-              filterLabels.map((label) => (
-                <DropdownMenuCheckboxItem
-                  key={label}
-                  checked={checkFilterIncludes(label)}
-                  onCheckedChange={(checked) => handleLabels(label, checked)}
-                  className={cn(
-                    checkFilterIncludes(label) &&
-                      "bg-blue-600 text-white focus:bg-blue-600 focus:text-white focus:bg-opacity-90"
-                  )}
-                >
-                  {SpacedNamed(label)}
-                </DropdownMenuCheckboxItem>
-              ))
-            ) : (
-              <DropdownMenuCheckboxItem>No filters yet</DropdownMenuCheckboxItem>
-            )}
-            <DropdownMenuCheckboxItem
-              key="startDate"
-              checked={checkFilterIncludes("startDate")}
-              onCheckedChange={(checked) => handleLabels("startDate", checked)}
-            >
-              Start Date
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              key="endDate"
-              checked={checkFilterIncludes("endDate")}
-              onCheckedChange={(checked) => handleLabels("endDate", checked)}
-            >
-              End Date
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button type="submit" variant="primary" className="w-full">
-          Apply Filters
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="w-fit" asChild>
-            <Button variant="dropDown" className="bg-orange-500 text-white">
-              Choose legend
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="flex flex-col gap-y-1">
-            {filterLabels.length !== 0 ? (
-              filterLabels.map((label) => (
-                <DropdownMenuItem
-                  key={label}
-                  onClick={() => setLegend(label)}
-                  className={cn(
-                    legend === label &&
-                      "bg-blue-600 text-white focus:bg-blue-600 focus:text-white focus:bg-opacity-90"
-                  )}
-                >
-                  {SpacedNamed(label)}
-                </DropdownMenuItem>
-              ))
-            ) : (
-              <DropdownMenuItem>No filters yet</DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      {/* Header / Toggle */}
+      <div
+        className="flex items-center justify-between px-3 py-2 cursor-pointer text-white"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <span className="text-sm font-medium">{summaryText()}</span>
+        {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
       </div>
 
-      {/* Filter Inputs */}
-      <div className="w-full flex flex-col flex-wrap p-2 gap-2">
-        {selectedFilters ? (
-          Object.keys(selectedFilters).map((selected) => {
-            const suggestions = getSuggestions(selected);
-            const inputValue = inputValues[selected] || "";
-            const filteredSuggestions = suggestions.filter((s) =>
-              s.toLowerCase().includes(inputValue.toLowerCase())
-            );
-            return (
-              <div key={selected} className="flex flex-col gap-y-2 relative">
-                {selected === "startDate" || selected === "endDate" ? (
-                  <>
-                    <label htmlFor={selected} className="text-sm font-medium">
-                      {selected === "startDate" ? "Start Date" : "End Date"}
-                    </label>
-                    <input
-                      type="date"
-                      id={selected}
-                      value={
-                        selectedFilters[selected]?.[0]
-                          ?.toString()
-                          .split("T")[0] || ""
-                      }
-                      onChange={(e) => handleChange(e.target.value, selected)}
-                      className="border border-gray-300 rounded-md px-3 py-2"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <label htmlFor={selected} className="text-sm font-medium">
-                      {SpacedNamed(selected)}
-                    </label>
-                    <input
-                      type="text"
-                      id={selected}
-                      value={inputValue}
-                      onChange={(e) =>
-                        setInputValues((prev) => ({
-                          ...prev,
-                          [selected]: e.target.value,
-                        }))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleChange(inputValue, selected);
-                        }
-                      }}
-                      className="border border-gray-300 rounded-md px-3 py-2"
-                      placeholder="Type to search or add"
-                    />
-                    {/* Suggestions dropdown */}
-                    {inputValue && filteredSuggestions.length > 0 && (
-                      <ul className="absolute top-full left-0 w-full bg-white border rounded-md shadow-md max-h-40 overflow-y-auto z-10">
-                        {filteredSuggestions.map((s, idx) => (
-                          <li
-                            key={idx}
-                            className="px-3 py-2 hover:bg-gray-200 cursor-pointer"
-                            onClick={() => handleChange(s, selected)}
+      {/* Expandable Content */}
+      {expanded && (
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 flex flex-col gap-y-4 text-white"
+        >
+          {/* Filter Selection */}
+          <div className="flex flex-col gap-y-3">
+            <h2 className="text-lg font-semibold">Filters</h2>
+            <DropdownMenu open={isDropdownOpen}>
+              <DropdownMenuTrigger
+                className="w-fit"
+                asChild
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <Button variant="dropDown" className={`${glassCard} text-white`}>
+                  Choose Filters
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className={`flex flex-col gap-y-1 overflow-auto max-h-60 ${glassCard} text-white`}
+                ref={dropdownRef}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setIsDropdownOpen(false);
+                }}
+              >
+                {filterLabels.length
+                  ? filterLabels.map((label) => (
+                      <DropdownMenuCheckboxItem
+                        key={label}
+                        checked={checkFilterIncludes(label)}
+                        onCheckedChange={(checked) => handleLabels(label, checked)}
+                      >
+                        {SpacedNamed(label)}
+                      </DropdownMenuCheckboxItem>
+                    ))
+                  : <DropdownMenuCheckboxItem>No filters yet</DropdownMenuCheckboxItem>}
+                <DropdownMenuCheckboxItem
+                  key="startDate"
+                  checked={checkFilterIncludes("startDate")}
+                  onCheckedChange={(checked) => handleLabels("startDate", checked)}
+                >
+                  Start Date
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  key="endDate"
+                  checked={checkFilterIncludes("endDate")}
+                  onCheckedChange={(checked) => handleLabels("endDate", checked)}
+                >
+                  End Date
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button type="submit" className={`${glassCard} text-white`}>
+              Apply Filters
+            </Button>
+          </div>
+
+          {/* Legend Selection */}
+          <div className="flex flex-col gap-y-3">
+            <h2 className="text-lg font-semibold">Legend</h2>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="w-fit" asChild>
+                <Button variant="dropDown" className={`${glassCard} text-white`}>
+                  {legend ? SpacedNamed(legend) : "Choose Legend"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className={`flex flex-col gap-y-1 overflow-auto max-h-60 ${glassCard}`}
+              >
+                {filterLabels.length
+                  ? filterLabels.map((label) => (
+                      <DropdownMenuItem
+                        key={label}
+                        onClick={() => setLegend(label)}
+                        className={cn(legend === label && "bg-blue-600/70 text-white")}
+                      >
+                        {SpacedNamed(label)}
+                      </DropdownMenuItem>
+                    ))
+                  : <DropdownMenuItem>No legend yet</DropdownMenuItem>}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Active Filters Inputs */}
+          <div className="flex flex-col gap-4">
+            {selectedFilters && Object.keys(selectedFilters).length > 0 ? (
+              Object.keys(selectedFilters).map((selected) => {
+                const suggestions = getSuggestions(selected);
+                const inputValue = inputValues[selected] || "";
+                const filteredSuggestions = suggestions.filter((s) =>
+                  s.toLowerCase().includes(inputValue.toLowerCase())
+                );
+                return (
+                  <div key={selected} className="flex flex-col gap-y-2 relative">
+                    {selected === "startDate" || selected === "endDate" ? (
+                      <>
+                        <label htmlFor={selected} className="text-sm font-medium text-white">
+                          {selected === "startDate" ? "Start Date" : "End Date"}
+                        </label>
+                        <input
+                          type="date"
+                          id={selected}
+                          value={selectedFilters[selected]?.[0]?.toString().split("T")[0] || ""}
+                          onChange={(e) => handleChange(e.target.value, selected)}
+                          className="border border-white/30 bg-transparent text-white placeholder-gray-300 rounded-md px-3 py-2"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <label htmlFor={selected} className="text-sm font-medium text-white">
+                          {SpacedNamed(selected)}
+                        </label>
+                        <input
+                          type="text"
+                          id={selected}
+                          value={inputValue}
+                          onChange={(e) =>
+                            setInputValues((prev) => ({ ...prev, [selected]: e.target.value }))
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              handleChange(inputValue, selected);
+                            }
+                          }}
+                          className="border border-white/30 bg-transparent text-white placeholder-gray-300 rounded-md px-3 py-2"
+                          placeholder="Type to search or add"
+                        />
+                        {inputValue && filteredSuggestions.length > 0 && (
+                          <ul
+                            className={`absolute top-full left-0 w-full ${glassCard} text-white max-h-40 overflow-y-auto z-10`}
                           >
-                            {s}
-                          </li>
-                        ))}
-                      </ul>
+                            {filteredSuggestions.map((s, idx) => (
+                              <li
+                                key={idx}
+                                className="px-3 py-2 hover:bg-gray-200/30 cursor-pointer"
+                                onClick={() => handleChange(s, selected)}
+                              >
+                                {s}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {selectedFilters[selected]?.map((val, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-1 text-xs bg-blue-500/30 text-white rounded-md flex items-center gap-1"
+                            >
+                              {val.toString()}
+                              <button
+                                type="button"
+                                className="text-red-400 text-xs ml-1"
+                                onClick={() => handleRemoveValue(selected, val)}
+                              >
+                                ✕
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </>
                     )}
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {selectedFilters[selected]?.map((val, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 text-xs bg-blue-100 rounded-md flex items-center gap-1"
-                        >
-                          {val.toString()}
-                          <button
-                            type="button"
-                            className="text-red-500 text-xs ml-1"
-                            onClick={() => handleRemoveValue(selected, val)}
-                          >
-                            ✕
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })
-        ) : (
-          <p>No Filters Selected</p>
-        )}
-      </div>
-    </form>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-white/70">No Filters Selected</p>
+            )}
+          </div>
+        </form>
+      )}
+    </div>
   );
 };

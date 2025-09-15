@@ -24,6 +24,8 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [showMenu, setShowMenu] = useState<boolean>(false); // ✅ collapsible state
+  
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -39,21 +41,15 @@ const App = () => {
 
   const logUserActivity = async (email: string) => {
     try {
-       const response = await fetch('https://intify-server.vercel.app/api/log-activity', {
+      await fetch('https://intify-server.vercel.app/api/log-activity', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           lastDateOfAccess: new Date().toISOString(),
           timeStamp: Date.now(),
         }),
       });
-
-      if (!response.ok) {
-        console.error('Failed to log user activity');
-      }
     } catch (error) {
       console.error('Error logging user activity:', error);
     }
@@ -65,24 +61,15 @@ const App = () => {
         let token;
         if ('access_token' in tokenResponse) {
           token = tokenResponse.access_token;
-        } else if ('code' in tokenResponse) {
-          console.error('Authorization code flow not implemented');
-          setErrorMessage('Authorization code flow not implemented');
-          return;
         } else {
-          console.error('Unexpected token response');
-          setErrorMessage('Unexpected token response');
+          setErrorMessage('Unexpected login response');
           return;
         }
-
         const response = await fetch('https://intify-server.vercel.app/api/verify-token', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token }),
         });
-
         if (response.ok) {
           const userData = await response.json();
           localStorage.setItem('authToken', token);
@@ -93,21 +80,13 @@ const App = () => {
           logUserActivity(userData.email);
         } else {
           const errorData = await response.json();
-          console.error('Authentication failed:', errorData.error);
-          setIsAuthenticated(false);
-          setErrorMessage(errorData.error || 'You are unauthorized. Please contact the administrator.');
+          setErrorMessage(errorData.error || 'Unauthorized account.');
         }
       } catch (error) {
-        console.error('Verification failed:', error);
-        setIsAuthenticated(false);
-        setErrorMessage('An error occurred during authentication. Please try again.');
+        setErrorMessage('Login failed. Try again.');
       }
     },
-    onError: (error) => {
-      console.error('Login Failed:', error);
-      setIsAuthenticated(false);
-      setErrorMessage('Login failed. Please try again.');
-    },
+    onError: () => setErrorMessage('Login failed. Please retry.'),
     scope: 'email profile',
   });
 
@@ -126,27 +105,43 @@ const App = () => {
   return (
     <GoogleOAuthProvider clientId={AUTH_CONFIG.GOOGLE_CLIENT_ID}>
       <Router>
-        <main className='flex flex-col h-screen'>
+        <main className="flex flex-col h-screen">
           <Routes>
             <Route path="/" element={
               <>
-                <div className='absolute top-0 left-0 bg-white m-4 z-10 p-2 px-3 rounded-lg flex flex-col gap-y-2'>
-                  <div className='flex gap-x-2'>
-                    <input onChange={() => handleChange('marker')} type="checkbox" id='enable-markers' checked={showLayer.marker} />
-                    <label htmlFor="enable-markers" className='text-sm'>Markers</label>
-                  </div>
-                  <div className='flex gap-x-2'>
-                    <input onChange={() => handleChange('border')} type="checkbox" id='enable-border' checked={showLayer.border} />
-                    <label htmlFor="enable-border" className='text-sm'>Borders</label>
-                  </div>
-                  {isAuthenticated && (
-                    <>
-                      <p className='text-sm'>Logged in as: {userEmail}</p>
-                      <button onClick={handleLogout} className='text-sm bg-red-500 text-white px-2 py-1 rounded'>Logout</button>
-                    </>
+                {/* ✅ Transparent floating control box */}
+                <div className="absolute top-0 left-0 m-4 z-20 controls-box">
+  <div className="flex gap-x-2">
+    <input onChange={() => handleChange('marker')} type="checkbox" id="enable-markers" checked={showLayer.marker} />
+    <label htmlFor="enable-markers" className="text-sm">Markers</label>
+  </div>
+  <div className="flex gap-x-2">
+    <input onChange={() => handleChange('border')} type="checkbox" id="enable-border" checked={showLayer.border} />
+    <label htmlFor="enable-border" className="text-sm">Borders</label>
+  </div>
+
+                  {/* ✅ collapsible section */}
+                  <button 
+                    onClick={() => setShowMenu(!showMenu)} 
+                    className="bg-blue-500 text-white text-xs px-2 py-1 rounded mt-2"
+                  >
+                    {showMenu ? "Hide Menu" : "Show Menu"}
+                  </button>
+
+                  {showMenu && (
+                    <div className="flex flex-col gap-y-2 mt-2">
+                      {isAuthenticated && (
+                        <>
+                          <p className="text-xs">Logged in as: {userEmail}</p>
+                          <button onClick={handleLogout} className="text-xs bg-red-500 text-white px-2 py-1 rounded">Logout</button>
+                        </>
+                      )}
+                      <RouteManager data={data} map={map} />
+                    </div>
                   )}
-                  <RouteManager data={data} map={map} />
                 </div>
+
+                {/* Main components */}
                 <XLS showLayer={showLayer} map={map} legend={legend} data={data} setData={setData} setXlsData={setXlsData} setkmlData={setkmlData} removeUnknown={removeUnknown} setRemoveUnknown={setRemoveUnknown} />
                 <KmlGenerator kmlData={kmlData} legendName={legend} selectedFilters={selectedFilters} removeUnknown={removeUnknown} />
                 <Map map={map} />
@@ -156,14 +151,17 @@ const App = () => {
             } />
             <Route path="/profile/:uid" element={<NaxalProfile />} />
           </Routes>
-          <Toaster position='top-center' />
+
+          <Toaster position="top-center" />
           <Analytics />
+
+          {/* ✅ Login overlay */}
           {!isAuthenticated && (
-            <div className="z-[999] absolute w-screen h-screen backdrop-blur-md p-4 bg-black bg-opacity-50 flex flex-col justify-center items-center">
-              <section className='bg-white p-4 md:gap-y-4 gap-y-2 lg:w-1/3 sm:w-1/2 w-full rounded-md flex flex-col justify-center items-center'>
-                <h1 className='md:text-4xl text-2xl text-blue-500 font-[Viga] uppercase'>Intify</h1>
-                <h3 className='md:text-lg text-red-500'>Only authorised People are allowed to access this website. Verify yourself by logging in through your allowed google account</h3>
-                <button onClick={() => login()} className="bg-blue-500 text-white px-4 md:py-2 p-1 mt-2 rounded">
+            <div className="z-[999] absolute w-screen h-screen backdrop-blur-md bg-black/60 flex flex-col justify-center items-center">
+              <section className="bg-white/80 dark:bg-black/70 p-4 gap-y-3 lg:w-1/3 sm:w-1/2 w-full rounded-md flex flex-col justify-center items-center">
+                <h1 className="md:text-4xl text-2xl text-blue-500 font-[Viga] uppercase">Intify</h1>
+                <h3 className="md:text-lg text-red-500 text-center">Only authorised people are allowed. Verify by logging in with your Google account.</h3>
+                <button onClick={() => login()} className="bg-blue-500 text-white px-4 py-2 mt-2 rounded">
                   Log in
                 </button>
                 {errorMessage && (
