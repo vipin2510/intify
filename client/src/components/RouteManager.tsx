@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { convertGRToDecimal } from '@/utils/conversion';
+import { useAppStore } from '@/store/useAppStore';
 
 interface RouteWithMarker {
   source: string;
@@ -16,10 +17,8 @@ interface RouteWithNullMarker {
 
 type RouteType = RouteWithMarker | RouteWithNullMarker;
 
-export const RouteManager: React.FC<RouteManagerProps> = ({
-  data,
-  map,
-}) => {
+export const RouteManager: React.FC = () => {
+  const { data, map } = useAppStore();
   const [routes, setRoutes] = useState<RouteType[]>([]);
   const [isRoutesGenerated, setIsRoutesGenerated] = useState(false);
   const [shouldAnimateAntPath, setShouldAnimateAntPath] = useState(false);

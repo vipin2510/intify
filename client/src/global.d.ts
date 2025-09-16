@@ -35,8 +35,7 @@ interface FiltersProps {
     removeUnknown: boolean;
   };
 
-  interface KmlGeneratorProps {
-    kmlData: kmlDataType[];
+interface KmlGeneratorProps {
     legendName: string;
     selectedFilters: selectedFiltersType;
     removeUnknown: boolean;

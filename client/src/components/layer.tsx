@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useAppStore } from "@/store/useAppStore";
 
-export const Layer = ({ map, showLayer }: LayerProps) => {
+export const Layer = ({ map }: { map: any }) => {
+  const { showLayer } = useAppStore();
     const files = [
       'Amdaighati_Area_Committee.geojson',
       // 'Area_committee.geojson',

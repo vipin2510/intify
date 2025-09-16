@@ -5,18 +5,23 @@ import { stringToColor } from "@/lib/utils";
 import { convertGRToDecimal } from "@/utils/conversion";
 import { handleFile } from "@/utils/file-reader";
 import { MapMouseEvent } from "mapbox-gl";
+import { useAppStore } from "@/store/useAppStore";
 
-export const XLS = ({
-  showLayer,
-  data,
-  setData,
-  legend,
-  setXlsData,
-  map,
-  removeUnknown,
-  setRemoveUnknown,
-}: XLSProps) => {
+export const XLS = ({ map }: { map: any }) => {
   const [filteredData, setFilteredData] = useState<xlsDataType[]>([]);
+
+  // Zustand store
+  const {
+    showLayer,
+    data,
+    setData,
+    legend,
+    setXlsData,
+    removeUnknown,
+    setRemoveUnknown,
+    setGeojsonData,
+    setFilteredData: setStoreFilteredData,
+  } = useAppStore();
 
   function formatGr(value: string): string | undefined {
     const splitValue = value.trim().split(" ");
@@ -32,8 +37,8 @@ export const XLS = ({
       );
       const rows = res.data;
       rows.shift();
-      if (rows.length === 0) return;
 
+      if (rows.length === 0) return;
       const processedData = rows
         .filter((rows: any) => rows[5] && formatGr(rows[5]))
         .map((row: any) => {
@@ -57,13 +62,14 @@ export const XLS = ({
             UID: row[21],
           };
         });
-
+      console.log(processedData);
       setFilteredData(processedData);
+      setStoreFilteredData(processedData);
       setData(processedData);
       setXlsData(processedData);
     };
-    showLayer.marker && fetchData();
-  }, [showLayer.marker]);
+    fetchData();
+  }, []);
 
   // 🔹 Filter unknowns
   useEffect(() => {
@@ -83,27 +89,59 @@ export const XLS = ({
     }
   }, [data, removeUnknown]);
 
+  // 🔹 Function to fit map bounds to show all data points
+  const fitMapToData = (features: any[]) => {
+    if (!map?.current || features.length === 0) return;
+
+    const coordinates = features.map((feature) => feature.geometry.coordinates);
+    if (coordinates.length === 0) return;
+
+    // Calculate bounds
+    const bounds = new mapboxgl.LngLatBounds();
+    coordinates.forEach((coord) => bounds.extend(coord));
+
+    // Fit map to bounds with padding and smooth transition
+    map.current.fitBounds(bounds, {
+      padding: 50,
+      maxZoom: 15,
+      duration: 1000,
+    });
+  };
+
   // 🔹 Map cluster rendering
   useEffect(() => {
-    if (!map.current || !showLayer.marker || filteredData.length === 0) return;
-
+    if (!map?.current || filteredData.length === 0) return;
+    
+    // If markers are disabled, hide the layers and return
+    if (!showLayer.marker) {
+      [
+        "clusters",
+        "cluster-count", 
+        "unclustered-point",
+        "unclustered-label",
+      ].forEach((layer) => {
+        if (map.current.getLayer(layer)) {
+          map.current.setLayoutProperty(layer, 'visibility', 'none');
+        }
+      });
+      return;
+    }
     // Convert to GeoJSON
     const geojson = {
-      type: "FeatureCollection",
+      type: "FeatureCollection" as const,
       features: filteredData
         .map((el) => {
           const coords = convertGRToDecimal(el.GR);
           if (!coords || isNaN(coords[0]) || isNaN(coords[1])) return null;
-
           let value = el[legend as keyof xlsDataType] || el.Name;
           // fallback if numeric
           if (!value || !isNaN(Number(value))) value = el.Name;
 
           return {
-            type: "Feature",
+            type: "Feature" as const,
             geometry: {
-              type: "Point",
-              coordinates: [coords[0], coords[1]],
+              type: "Point" as const,
+              coordinates: [coords[0], coords[1]] as [number, number],
             },
             properties: {
               legend: value,
@@ -114,16 +152,22 @@ export const XLS = ({
             },
           };
         })
-        .filter(Boolean),
+        .filter(Boolean) as any[],
     };
+
+    // Store GeoJSON in global state for KML generation
+    setGeojsonData(geojson);
 
     // Cleanup if re-render
     if (map.current.getSource("points")) {
-      ["clusters", "cluster-count", "unclustered-point", "unclustered-label"].forEach(
-        (layer) => {
-          if (map.current.getLayer(layer)) map.current.removeLayer(layer);
-        }
-      );
+      [
+        "clusters",
+        "cluster-count",
+        "unclustered-point",
+        "unclustered-label",
+      ].forEach((layer) => {
+        if (map.current.getLayer(layer)) map.current.removeLayer(layer);
+      });
       map.current.removeSource("points");
     }
 
@@ -197,49 +241,104 @@ export const XLS = ({
 
     // Popup on click (single point)
     map.current.on(
-  "click",
-  "unclustered-point",
-  (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
-    const features = map.current?.queryRenderedFeatures(e.point, {
-      layers: ["unclustered-point"],
-    });
-    if (!features || !features[0]) return;
+      "click",
+      "unclustered-point",
+      (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
+        const features = map.current?.queryRenderedFeatures(e.point, {
+          layers: ["unclustered-point"],
+        });
+        if (!features || !features[0]) return;
 
-    const { intUniqueNo, intContent, uid } = features[0].properties as any;
+        const { intUniqueNo, intContent, uid } = features[0].properties as any;
 
-    new mapboxgl.Popup()
-      .setLngLat((features[0].geometry as any).coordinates)
-      .setHTML(
-        `<h3>${intUniqueNo}: ${intContent}</h3>
+        new mapboxgl.Popup()
+          .setLngLat((features[0].geometry as any).coordinates)
+          .setHTML(
+            `<h3>${intUniqueNo}: ${intContent}</h3>
          <a href="/profile/${uid}" target="_blank">View Profile</a>`
-      )
-      .addTo(map.current!);
-  }
-);
+          )
+          .addTo(map.current!);
+      }
+    );
 
     // Zoom into clusters
-   map.current.on(
-  "click",
-  "clusters",
-  (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
-    const features = map.current?.queryRenderedFeatures(e.point, {
-      layers: ["clusters"],
-    });
-    if (!features || !features[0]) return;
+    map.current.on(
+      "click",
+      "clusters",
+      (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
+        const features = map.current?.queryRenderedFeatures(e.point, {
+          layers: ["clusters"],
+        });
+        if (!features || !features[0]) return;
 
-    const clusterId = features[0].properties?.cluster_id;
-    const source: any = map.current?.getSource("points");
+        const clusterId = features[0].properties?.cluster_id;
+        const source: any = map.current?.getSource("points");
 
-    source.getClusterExpansionZoom(clusterId, (err: any, zoom: number) => {
-      if (err) return;
-      map.current?.easeTo({
-        center: (features[0].geometry as any).coordinates,
-        zoom,
-      });
+        source.getClusterExpansionZoom(clusterId, (err: any, zoom: number) => {
+          if (err) return;
+          map.current?.easeTo({
+            center: (features[0].geometry as any).coordinates,
+            zoom,
+          });
+        });
+      }
+    );
+
+    // Show all marker layers
+    [
+      "clusters",
+      "cluster-count",
+      "unclustered-point", 
+      "unclustered-label",
+    ].forEach((layer) => {
+      if (map.current.getLayer(layer)) {
+        map.current.setLayoutProperty(layer, 'visibility', 'visible');
+      }
     });
-  }
-);
-  }, [filteredData, legend, showLayer.marker]);
+
+    // Fit map to show all data points after layers are added
+    setTimeout(() => {
+      fitMapToData(geojson.features);
+    }, 100);
+  }, [map?.current, filteredData, legend, showLayer.marker]);
+
+  // 🔹 Update map view when legend changes (for better user experience)
+  useEffect(() => {
+    if (!map?.current || !showLayer.marker || filteredData.length === 0) return;
+
+    // Get current GeoJSON data and fit map to it
+    const currentGeojson = {
+      type: "FeatureCollection" as const,
+      features: filteredData
+        .map((el) => {
+          const coords = convertGRToDecimal(el.GR);
+          if (!coords || isNaN(coords[0]) || isNaN(coords[1])) return null;
+          let value = el[legend as keyof xlsDataType] || el.Name;
+          if (!value || !isNaN(Number(value))) value = el.Name;
+
+          return {
+            type: "Feature" as const,
+            geometry: {
+              type: "Point" as const,
+              coordinates: [coords[0], coords[1]] as [number, number],
+            },
+            properties: {
+              legend: value,
+              uid: el.UID,
+              intUniqueNo: el.IntUniqueNo,
+              intContent: el.IntContent,
+              color: stringToColor(el.Name_),
+            },
+          };
+        })
+        .filter(Boolean) as any[],
+    };
+
+    // Fit map to show all data points when legend changes
+    setTimeout(() => {
+      fitMapToData(currentGeojson.features);
+    }, 100);
+  }, [legend]);
 
   return (
     <>

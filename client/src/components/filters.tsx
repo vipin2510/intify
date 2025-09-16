@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useAppStore } from "@/store/useAppStore";
 
 // Types
 type FiltersProps = {
@@ -26,29 +27,35 @@ type FiltersProps = {
   removeUnknown: boolean;
 };
 
-export const Filters = ({
-  data,
-  setData,
-  xlsData,
-  legend,
-  setLegend,
-  selectedFilters: initialSelectedFilters,
-  setSelectedFilters: setInitialSelectedFilters,
-  removeUnknown,
-}: FiltersProps) => {
+export const Filters = () => {
   const [filterLabels, setFilterLabels] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
-  const [selectedFilters, setSelectedFilters] = useState<Record<string, (string | Date)[]>>(initialSelectedFilters);
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
   const [expanded, setExpanded] = useState(false);
+  
+  // Zustand store
+  const { 
+    data,
+    setData,
+    xlsData,
+    legend,
+    setLegend,
+    selectedFilters,
+    setSelectedFilters,
+    removeUnknown,
+    setData: setStoreData, 
+    setSelectedFilters: setStoreSelectedFilters 
+  } = useAppStore();
+  
+  const [localSelectedFilters, setLocalSelectedFilters] = useState<Record<string, (string | Date)[]>>(selectedFilters);
 
   const glassCard =
     "bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg";
 
   useEffect(() => {
-    setInitialSelectedFilters(selectedFilters);
-  }, [selectedFilters, setInitialSelectedFilters]);
+    setLocalSelectedFilters(selectedFilters);
+  }, [selectedFilters]);
 
   const SpacedNamed = (param: string) => {
     switch (param) {
@@ -75,7 +82,7 @@ export const Filters = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { startDate, endDate, ...otherFilters } = selectedFilters;
+    const { startDate, endDate, ...otherFilters } = localSelectedFilters;
 
     const filteredByDate = xlsData.filter((row) => {
       if (row.Date && typeof row.Date === "string") {
@@ -100,6 +107,8 @@ export const Filters = ({
     );
 
     setData(finalData);
+    setStoreData(finalData);
+    setStoreSelectedFilters(localSelectedFilters);
   };
 
   useEffect(() => {
@@ -109,7 +118,7 @@ export const Filters = ({
   }, [data]);
 
   const handleLabels = (label: string, checked: boolean) => {
-    setSelectedFilters((prevFilters) => {
+    setLocalSelectedFilters((prevFilters) => {
       if (checked) {
         return { ...prevFilters, [label]: [] };
       } else {
@@ -119,11 +128,11 @@ export const Filters = ({
     });
   };
 
-  const checkFilterIncludes = (label: string) => Object.keys(selectedFilters).includes(label);
+  const checkFilterIncludes = (label: string) => Object.keys(localSelectedFilters).includes(label);
 
   const handleChange = (value: string | Date, selected: string) => {
     if (value === "" || value === null) return;
-    setSelectedFilters((prev) => {
+    setLocalSelectedFilters((prev) => {
       const currentValues = prev[selected] || [];
       if (currentValues.includes(value)) return prev;
       return { ...prev, [selected]: [...currentValues, value] };
@@ -132,7 +141,7 @@ export const Filters = ({
   };
 
   const handleRemoveValue = (selected: string, value: string | Date) => {
-    setSelectedFilters((prev) => {
+    setLocalSelectedFilters((prev) => {
       const updated = (prev[selected] || []).filter((v) => v !== value);
       if (updated.length === 0) {
         const { [selected]: omitted, ...rest } = prev;
@@ -156,7 +165,7 @@ export const Filters = ({
   };
 
   const summaryText = () => {
-    const activeFilters = Object.keys(selectedFilters).length;
+    const activeFilters = Object.keys(localSelectedFilters).length;
     return `${activeFilters} filter${activeFilters !== 1 ? "s" : ""} applied · Legend: ${
       legend || "None"
     }`;
@@ -264,8 +273,8 @@ export const Filters = ({
 
           {/* Active Filters Inputs */}
           <div className="flex flex-col gap-4">
-            {selectedFilters && Object.keys(selectedFilters).length > 0 ? (
-              Object.keys(selectedFilters).map((selected) => {
+            {localSelectedFilters && Object.keys(localSelectedFilters).length > 0 ? (
+              Object.keys(localSelectedFilters).map((selected) => {
                 const suggestions = getSuggestions(selected);
                 const inputValue = inputValues[selected] || "";
                 const filteredSuggestions = suggestions.filter((s) =>
@@ -281,7 +290,7 @@ export const Filters = ({
                         <input
                           type="date"
                           id={selected}
-                          value={selectedFilters[selected]?.[0]?.toString().split("T")[0] || ""}
+                          value={localSelectedFilters[selected]?.[0]?.toString().split("T")[0] || ""}
                           onChange={(e) => handleChange(e.target.value, selected)}
                           className="border border-white/30 bg-transparent text-white placeholder-gray-300 rounded-md px-3 py-2"
                         />
@@ -323,7 +332,7 @@ export const Filters = ({
                           </ul>
                         )}
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {selectedFilters[selected]?.map((val, idx) => (
+                          {localSelectedFilters[selected]?.map((val, idx) => (
                             <span
                               key={idx}
                               className="px-2 py-1 text-xs bg-blue-500/30 text-white rounded-md flex items-center gap-1"

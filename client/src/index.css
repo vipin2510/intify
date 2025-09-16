@@ -84,3 +84,36 @@
 .controls-box {
   @apply backdrop-blur-md bg-white/70 dark:bg-black/50 rounded-lg shadow p-2 flex flex-col gap-y-2;
 }
+
+/* Custom popup styling */
+.custom-popup .mapboxgl-popup-content {
+  @apply rounded-lg shadow-lg border-0 p-0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.custom-popup .mapboxgl-popup-tip {
+  border-top-color: rgba(255, 255, 255, 0.95);
+}
+
+.custom-popup .mapboxgl-popup-close-button {
+  @apply text-gray-500 hover:text-gray-700 text-lg;
+  right: 8px;
+  top: 8px;
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
+}
+
+/* Cluster tooltip styling */
+.cluster-tooltip .mapboxgl-popup-content {
+  @apply rounded-md shadow-md border-0 p-0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 12px;
+  min-width: auto;
+}
+
+.cluster-tooltip .mapboxgl-popup-tip {
+  border-top-color: rgba(0, 0, 0, 0.8);
+}
