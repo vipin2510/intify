@@ -4,6 +4,10 @@ import { useAppStore } from "@/store/useAppStore";
 export const Layer = ({ map }: { map: any }) => {
   const { showLayer } = useAppStore();
 
+  // Base GitHub raw path
+  const baseUrl =
+    "https://raw.githubusercontent.com/vipin2510/intify/webonlineveersion/client/public/Geojson";
+
   const files = [
     "Amdaighati_Area_Committee.geojson",
     "Barsur_Area_Committee.geojson",
@@ -34,7 +38,7 @@ export const Layer = ({ map }: { map: any }) => {
       // Border file
       map.current.addSource("source-100", {
         type: "geojson",
-        data: "/Geojson/Narayanpur_border.geojson", // ✅ leading slash
+        data: `${baseUrl}/Narayanpur_border.geojson`, // ✅ now from GitHub raw
       });
 
       map.current.addLayer({
@@ -54,7 +58,7 @@ export const Layer = ({ map }: { map: any }) => {
 
         map.current.addSource(sourceId, {
           type: "geojson",
-          data: `/Geojson/${file}`, // ✅ fixed path
+          data: `${baseUrl}/${file}`, // ✅ fetch directly from GitHub
         });
 
         map.current.addLayer({
