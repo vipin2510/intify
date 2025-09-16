@@ -75,7 +75,7 @@ const App = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token }),
-          }
+          },
         );
         if (response.ok) {
           const userData = await response.json();
@@ -164,7 +164,7 @@ const App = () => {
                             </button>
                           </>
                         )}
-                        <RouteManager />
+                        <RouteManager map={map} />
                       </div>
                     )}
                   </div>

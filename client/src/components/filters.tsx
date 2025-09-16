@@ -13,42 +13,28 @@ import { toast } from "sonner";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 
-// Types
-type FiltersProps = {
-  data: xlsDataType[];
-  setData: React.Dispatch<React.SetStateAction<xlsDataType[]>>;
-  xlsData: xlsDataType[];
-  legend: string;
-  setLegend: React.Dispatch<React.SetStateAction<string>>;
-  selectedFilters: Record<string, (string | Date)[]>;
-  setSelectedFilters: React.Dispatch<
-    React.SetStateAction<Record<string, (string | Date)[]>>
-  >;
-  removeUnknown: boolean;
-};
-
 export const Filters = () => {
   const [filterLabels, setFilterLabels] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useOutsideClick(() => setIsDropdownOpen(false));
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
   const [expanded, setExpanded] = useState(false);
-  
+
   // Zustand store
-  const { 
+  const {
     data,
     setData,
     xlsData,
     legend,
     setLegend,
     selectedFilters,
-    setSelectedFilters,
     removeUnknown,
-    setData: setStoreData, 
-    setSelectedFilters: setStoreSelectedFilters 
+    setData: setStoreData,
+    setSelectedFilters: setStoreSelectedFilters,
   } = useAppStore();
-  
-  const [localSelectedFilters, setLocalSelectedFilters] = useState<Record<string, (string | Date)[]>>(selectedFilters);
+
+  const [localSelectedFilters, setLocalSelectedFilters] =
+    useState<Record<string, (string | Date)[]>>(selectedFilters);
 
   const glassCard =
     "bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg";
@@ -86,9 +72,14 @@ export const Filters = () => {
 
     const filteredByDate = xlsData.filter((row) => {
       if (row.Date && typeof row.Date === "string") {
-        const dataDate = new Date(String(row.Date).split("/").reverse().join("-"));
+        const dataDate = new Date(
+          String(row.Date).split("/").reverse().join("-"),
+        );
         if (startDate?.length && endDate?.length) {
-          return dataDate >= new Date(startDate[0]) && dataDate <= new Date(endDate[0]);
+          return (
+            dataDate >= new Date(startDate[0]) &&
+            dataDate <= new Date(endDate[0])
+          );
         } else if (startDate?.length) {
           return dataDate >= new Date(startDate[0]);
         } else if (endDate?.length) {
@@ -101,9 +92,11 @@ export const Filters = () => {
     const finalData = filteredByDate.filter((row) =>
       Object.entries(otherFilters).every(([key, values]) => {
         if (!values || values.length === 0) return true;
-        const dataValue = row[key as keyof xlsDataType]?.toString().toLowerCase();
+        const dataValue = row[key as keyof xlsDataType]
+          ?.toString()
+          .toLowerCase();
         return values.some((val) => dataValue === val.toString().toLowerCase());
-      })
+      }),
     );
 
     setData(finalData);
@@ -128,7 +121,8 @@ export const Filters = () => {
     });
   };
 
-  const checkFilterIncludes = (label: string) => Object.keys(localSelectedFilters).includes(label);
+  const checkFilterIncludes = (label: string) =>
+    Object.keys(localSelectedFilters).includes(label);
 
   const handleChange = (value: string | Date, selected: string) => {
     if (value === "" || value === null) return;
@@ -153,14 +147,25 @@ export const Filters = () => {
 
   const getSuggestions = (selected: string) => {
     const uniqueValues = Array.from(
-      new Set(xlsData.map((item) => item[selected as keyof xlsDataType]))
+      new Set(xlsData.map((item) => item[selected as keyof xlsDataType])),
     );
-    const isNumericField = ["Month", "Strength", "IntUniqueNo", "Week"].includes(selected);
+    const isNumericField = [
+      "Month",
+      "Strength",
+      "IntUniqueNo",
+      "Week",
+    ].includes(selected);
     const filteredValues = removeUnknown
-      ? uniqueValues.filter((value) => value !== null && value !== "Unknown" && value !== "ukn")
+      ? uniqueValues.filter(
+          (value) => value !== null && value !== "Unknown" && value !== "ukn",
+        )
       : uniqueValues.filter((value) => value !== null);
     return filteredValues.map((value) =>
-      value !== null ? (isNumericField ? String(value) : String(value).toLowerCase()) : ""
+      value !== null
+        ? isNumericField
+          ? String(value)
+          : String(value).toLowerCase()
+        : "",
     );
   };
 
@@ -182,7 +187,11 @@ export const Filters = () => {
         onClick={() => setExpanded(!expanded)}
       >
         <span className="text-sm font-medium">{summaryText()}</span>
-        {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        {expanded ? (
+          <ChevronUp className="h-4 w-4" />
+        ) : (
+          <ChevronDown className="h-4 w-4" />
+        )}
       </div>
 
       {/* Expandable Content */}
@@ -200,7 +209,10 @@ export const Filters = () => {
                 asChild
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <Button variant="dropDown" className={`${glassCard} text-white`}>
+                <Button
+                  variant="dropDown"
+                  className={`${glassCard} text-white`}
+                >
                   Choose Filters
                 </Button>
               </DropdownMenuTrigger>
@@ -211,28 +223,38 @@ export const Filters = () => {
                   if (e.key === "Escape") setIsDropdownOpen(false);
                 }}
               >
-                {filterLabels.length
-                  ? filterLabels.map((label) => (
-                      <DropdownMenuCheckboxItem
-                        key={label}
-                        checked={checkFilterIncludes(label)}
-                        onCheckedChange={(checked) => handleLabels(label, checked)}
-                      >
-                        {SpacedNamed(label)}
-                      </DropdownMenuCheckboxItem>
-                    ))
-                  : <DropdownMenuCheckboxItem>No filters yet</DropdownMenuCheckboxItem>}
+                {filterLabels.length ? (
+                  filterLabels.map((label) => (
+                    <DropdownMenuCheckboxItem
+                      key={label}
+                      checked={checkFilterIncludes(label)}
+                      onCheckedChange={(checked) =>
+                        handleLabels(label, checked)
+                      }
+                    >
+                      {SpacedNamed(label)}
+                    </DropdownMenuCheckboxItem>
+                  ))
+                ) : (
+                  <DropdownMenuCheckboxItem>
+                    No filters yet
+                  </DropdownMenuCheckboxItem>
+                )}
                 <DropdownMenuCheckboxItem
                   key="startDate"
                   checked={checkFilterIncludes("startDate")}
-                  onCheckedChange={(checked) => handleLabels("startDate", checked)}
+                  onCheckedChange={(checked) =>
+                    handleLabels("startDate", checked)
+                  }
                 >
                   Start Date
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
                   key="endDate"
                   checked={checkFilterIncludes("endDate")}
-                  onCheckedChange={(checked) => handleLabels("endDate", checked)}
+                  onCheckedChange={(checked) =>
+                    handleLabels("endDate", checked)
+                  }
                 >
                   End Date
                 </DropdownMenuCheckboxItem>
@@ -249,55 +271,78 @@ export const Filters = () => {
             <h2 className="text-lg font-semibold">Legend</h2>
             <DropdownMenu>
               <DropdownMenuTrigger className="w-fit" asChild>
-                <Button variant="dropDown" className={`${glassCard} text-white`}>
+                <Button
+                  variant="dropDown"
+                  className={`${glassCard} text-white`}
+                >
                   {legend ? SpacedNamed(legend) : "Choose Legend"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className={`flex flex-col gap-y-1 overflow-auto max-h-60 ${glassCard}`}
               >
-                {filterLabels.length
-                  ? filterLabels.map((label) => (
-                      <DropdownMenuItem
-                        key={label}
-                        onClick={() => setLegend(label)}
-                        className={cn(legend === label && "bg-blue-600/70 text-white")}
-                      >
-                        {SpacedNamed(label)}
-                      </DropdownMenuItem>
-                    ))
-                  : <DropdownMenuItem>No legend yet</DropdownMenuItem>}
+                {filterLabels.length ? (
+                  filterLabels.map((label) => (
+                    <DropdownMenuItem
+                      key={label}
+                      onClick={() => setLegend(label)}
+                      className={cn(
+                        legend === label && "bg-blue-600/70 text-white",
+                      )}
+                    >
+                      {SpacedNamed(label)}
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem>No legend yet</DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
           {/* Active Filters Inputs */}
           <div className="flex flex-col gap-4">
-            {localSelectedFilters && Object.keys(localSelectedFilters).length > 0 ? (
+            {localSelectedFilters &&
+            Object.keys(localSelectedFilters).length > 0 ? (
               Object.keys(localSelectedFilters).map((selected) => {
                 const suggestions = getSuggestions(selected);
                 const inputValue = inputValues[selected] || "";
                 const filteredSuggestions = suggestions.filter((s) =>
-                  s.toLowerCase().includes(inputValue.toLowerCase())
+                  s.toLowerCase().includes(inputValue.toLowerCase()),
                 );
                 return (
-                  <div key={selected} className="flex flex-col gap-y-2 relative">
+                  <div
+                    key={selected}
+                    className="flex flex-col gap-y-2 relative"
+                  >
                     {selected === "startDate" || selected === "endDate" ? (
                       <>
-                        <label htmlFor={selected} className="text-sm font-medium text-white">
+                        <label
+                          htmlFor={selected}
+                          className="text-sm font-medium text-white"
+                        >
                           {selected === "startDate" ? "Start Date" : "End Date"}
                         </label>
                         <input
                           type="date"
                           id={selected}
-                          value={localSelectedFilters[selected]?.[0]?.toString().split("T")[0] || ""}
-                          onChange={(e) => handleChange(e.target.value, selected)}
+                          value={
+                            localSelectedFilters[selected]?.[0]
+                              ?.toString()
+                              .split("T")[0] || ""
+                          }
+                          onChange={(e) =>
+                            handleChange(e.target.value, selected)
+                          }
                           className="border border-white/30 bg-transparent text-white placeholder-gray-300 rounded-md px-3 py-2"
                         />
                       </>
                     ) : (
                       <>
-                        <label htmlFor={selected} className="text-sm font-medium text-white">
+                        <label
+                          htmlFor={selected}
+                          className="text-sm font-medium text-white"
+                        >
                           {SpacedNamed(selected)}
                         </label>
                         <input
@@ -305,7 +350,10 @@ export const Filters = () => {
                           id={selected}
                           value={inputValue}
                           onChange={(e) =>
-                            setInputValues((prev) => ({ ...prev, [selected]: e.target.value }))
+                            setInputValues((prev) => ({
+                              ...prev,
+                              [selected]: e.target.value,
+                            }))
                           }
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {

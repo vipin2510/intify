@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import mapboxgl from 'mapbox-gl';
-import { convertGRToDecimal } from '@/utils/conversion';
-import { useAppStore } from '@/store/useAppStore';
+import React, { useState, useEffect } from "react";
+import mapboxgl from "mapbox-gl";
+import { convertGRToDecimal } from "@/utils/conversion";
+import { useAppStore } from "@/store/useAppStore";
 
 interface RouteWithMarker {
   source: string;
@@ -17,8 +17,12 @@ interface RouteWithNullMarker {
 
 type RouteType = RouteWithMarker | RouteWithNullMarker;
 
-export const RouteManager: React.FC = () => {
-  const { data, map } = useAppStore();
+interface RouteManagerProps {
+  map: React.RefObject<any>;
+}
+
+export const RouteManager: React.FC<RouteManagerProps> = ({ map }) => {
+  const { data } = useAppStore();
   const [routes, setRoutes] = useState<RouteType[]>([]);
   const [isRoutesGenerated, setIsRoutesGenerated] = useState(false);
   const [shouldAnimateAntPath, setShouldAnimateAntPath] = useState(false);
@@ -37,10 +41,10 @@ export const RouteManager: React.FC = () => {
 
     // Filter data by "Name_" and sort by date
     const sortedData = data
-      .filter((item) => item.Name_ === 'smd')
+      .filter((item) => item.Name_ === "smd")
       .sort((a, b) => {
-        const dateA = new Date(String(a.Date!).split('/').reverse().join('/'));
-        const dateB = new Date(String(b.Date!).split('/').reverse().join('/'));
+        const dateA = new Date(String(a.Date!).split("/").reverse().join("/"));
+        const dateB = new Date(String(b.Date!).split("/").reverse().join("/"));
         return dateA.getTime() - dateB.getTime();
       });
 
@@ -51,14 +55,17 @@ export const RouteManager: React.FC = () => {
       const [longitude, latitude] = convertGRToDecimal(item.GR);
       coordinates.push([longitude, latitude]);
 
-      const formattedDate = new Date(String(item.Date!).split('/').reverse().join('/'))
-        .toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
+      const formattedDate = new Date(
+        String(item.Date!).split("/").reverse().join("/"),
+      ).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
 
-      const popup = new mapboxgl.Popup().setHTML(`<h3>Somdu Makdam:${formattedDate}</h3>`);
+      const popup = new mapboxgl.Popup().setHTML(
+        `<h3>Somdu Makdam:${formattedDate}</h3>`,
+      );
       const markerInfo = document.createElement("div");
 
       markerInfo.className = "marker-info";
@@ -66,7 +73,12 @@ export const RouteManager: React.FC = () => {
       markerInfo.style.backgroundColor = "#ffffff";
 
       // Set marker color based on index
-      markerInfo.style.backgroundColor = index === 0 ? '#00ff00' : index === sortedData.length - 1 ? '#ff0000' : '#ffffff';
+      markerInfo.style.backgroundColor =
+        index === 0
+          ? "#00ff00"
+          : index === sortedData.length - 1
+            ? "#ff0000"
+            : "#ffffff";
 
       const marker = new mapboxgl.Marker({
         element: markerInfo,
@@ -78,34 +90,34 @@ export const RouteManager: React.FC = () => {
       if (previousMarker) {
         const dayDifference = getDayDifference(
           String(item.Date!),
-          previousMarker.date
+          previousMarker.date,
         );
         popup.setHTML(
           `<h3>Somdu Makdam:</h3>
-          <p>Days since last movement: ${dayDifference}</p>`
+          <p>Days since last movement: ${dayDifference}</p>`,
         );
       }
 
       setRoutes((prevRoutes) => [
         ...prevRoutes,
-        { source: '', layer: '', marker },
+        { source: "", layer: "", marker },
       ]);
 
       previousMarker = { marker, date: String(item.Date!) };
     });
 
-    const source = 'route-source';
-    const layer = 'route-layer';
+    const source = "route-source";
+    const layer = "route-layer";
 
     map.current.addSource(source, {
-      type: 'geojson',
+      type: "geojson",
       data: {
-        type: 'FeatureCollection',
+        type: "FeatureCollection",
         features: [
           {
-            type: 'Feature',
+            type: "Feature",
             geometry: {
-              type: 'LineString',
+              type: "LineString",
               coordinates,
             },
           },
@@ -115,31 +127,28 @@ export const RouteManager: React.FC = () => {
 
     map.current.addLayer({
       id: layer,
-      type: 'line',
+      type: "line",
       source: source,
       paint: {
-        'line-color': 'red',
-        'line-width': 4,
-        'line-dasharray': [0, 4, 3], // Initial dash array for ant path animation
+        "line-color": "red",
+        "line-width": 4,
+        "line-dasharray": [0, 4, 3], // Initial dash array for ant path animation
       },
     });
 
     // Add the line background layer
     map.current.addLayer({
-      type: 'line',
+      type: "line",
       source: source,
-      id: 'line-background',
+      id: "line-background",
       paint: {
-        'line-color': 'red',
-        'line-width': 5,
-        'line-opacity': 0.3
-      }
+        "line-color": "red",
+        "line-width": 5,
+        "line-opacity": 0.3,
+      },
     });
 
-    setRoutes((prevRoutes) => [
-      ...prevRoutes,
-      { source, layer, marker: null },
-    ]);
+    setRoutes((prevRoutes) => [...prevRoutes, { source, layer, marker: null }]);
     setIsRoutesGenerated(true);
   };
 
@@ -149,8 +158,8 @@ export const RouteManager: React.FC = () => {
         route.marker.remove();
       }
       if (route.layer) {
-        if (map.current.getLayer('line-background')) {
-          map.current.removeLayer('line-background');
+        if (map.current.getLayer("line-background")) {
+          map.current.removeLayer("line-background");
         }
         map.current.removeLayer(route.layer);
         map.current.removeSource(route.source);
@@ -163,11 +172,11 @@ export const RouteManager: React.FC = () => {
   };
 
   const getDayDifference = (dateString1: string, dateString2: string) => {
-    const date1 = new Date(dateString1.split('/').reverse().join('/'));
-    const date2 = new Date(dateString2.split('/').reverse().join('/'));
+    const date1 = new Date(dateString1.split("/").reverse().join("/"));
+    const date2 = new Date(dateString2.split("/").reverse().join("/"));
     if (isNaN(date1.getTime()) || isNaN(date2.getTime())) {
       // Handle invalid date strings here
-      return 'Invalid date';
+      return "Invalid date";
     }
 
     const diffInMs = Math.abs(date1.getTime() - date2.getTime());
@@ -195,14 +204,17 @@ export const RouteManager: React.FC = () => {
     let step = 0;
 
     function animateDashArray(timestamp: any) {
-      const newStep = parseInt(String((timestamp / 50) % dashArraySequence.length));
+      const newStep = parseInt(
+        String((timestamp / 50) % dashArraySequence.length),
+      );
 
       if (newStep !== step) {
-        if (map.current.getLayer('route-layer')) { // Check if the layer still exists
+        if (map.current.getLayer("route-layer")) {
+          // Check if the layer still exists
           map.current.setPaintProperty(
-            'route-layer',
-            'line-dasharray',
-            dashArraySequence[step]
+            "route-layer",
+            "line-dasharray",
+            dashArraySequence[step],
           );
         } else {
           cancelAnimationFrame(animationFrameId!); // Stop the animation if the layer is removed
@@ -222,7 +234,7 @@ export const RouteManager: React.FC = () => {
       onClick={() => (isRoutesGenerated ? clearRoutes() : generateRoutes())}
       className="bg-blue-500 text-white text-sm px-4 py-1 rounded"
     >
-      {isRoutesGenerated ? 'Clear Routes' : 'Generate Routes'}
+      {isRoutesGenerated ? "Clear Routes" : "Generate Routes"}
     </button>
   );
 };
