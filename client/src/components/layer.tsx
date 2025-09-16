@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
+import { Layers } from "lucide-react"; // ✅ icon
 
 export const Layer = ({ map }: { map: any }) => {
   const { showLayer } = useAppStore();
@@ -29,7 +30,18 @@ export const Layer = ({ map }: { map: any }) => {
 
   const [layers, setLayers] = useState<string[]>([]);
   const [sources, setSources] = useState<string[]>([]);
+  const [open, setOpen] = useState(false);
 
+  // ✅ extra layers toggle state
+  const [extraLayers, setExtraLayers] = useState({
+    village: false,
+    camp: false,
+    ps: false,
+    road: false,
+    otherDistrict: false,
+  });
+
+  // --- Border + Committee Layers ---
   useEffect(() => {
     const createBorders = () => {
       setLayers([]);
@@ -38,7 +50,7 @@ export const Layer = ({ map }: { map: any }) => {
       // Border file
       map.current.addSource("source-100", {
         type: "geojson",
-        data: `${baseUrl}/Narayanpur_border.geojson`, // ✅ now from GitHub raw
+        data: `${baseUrl}/Narayanpur_border.geojson`,
       });
 
       map.current.addLayer({
@@ -51,14 +63,14 @@ export const Layer = ({ map }: { map: any }) => {
         },
       });
 
-      // Other committee files
+      // Committees
       files.forEach((file, index) => {
         const sourceId = `source-${index}`;
         const layerId = `data-${index}`;
 
         map.current.addSource(sourceId, {
           type: "geojson",
-          data: `${baseUrl}/${file}`, // ✅ fetch directly from GitHub
+          data: `${baseUrl}/${file}`,
         });
 
         map.current.addLayer({
@@ -71,29 +83,21 @@ export const Layer = ({ map }: { map: any }) => {
           },
         });
 
-        setLayers((prevLayers) => [...prevLayers, layerId]);
-        setSources((prevSources) => [...prevSources, sourceId]);
+        setLayers((prev) => [...prev, layerId]);
+        setSources((prev) => [...prev, sourceId]);
       });
     };
 
     const removeBorders = () => {
       layers.forEach((layer) => {
-        if (map.current.getLayer(layer)) {
-          map.current.removeLayer(layer);
-        }
+        if (map.current.getLayer(layer)) map.current.removeLayer(layer);
       });
 
-      if (map.current.getLayer("data-100")) {
-        map.current.removeLayer("data-100");
-      }
-      if (map.current.getSource("source-100")) {
-        map.current.removeSource("source-100");
-      }
+      if (map.current.getLayer("data-100")) map.current.removeLayer("data-100");
+      if (map.current.getSource("source-100")) map.current.removeSource("source-100");
 
-      sources.forEach((source) => {
-        if (map.current.getSource(source)) {
-          map.current.removeSource(source);
-        }
+      sources.forEach((src) => {
+        if (map.current.getSource(src)) map.current.removeSource(src);
       });
     };
 
@@ -104,5 +108,127 @@ export const Layer = ({ map }: { map: any }) => {
     }
   }, [showLayer.border]);
 
-  return null;
+  // --- Extra Layers Handler ---
+  useEffect(() => {
+    const addExtraLayer = (id: string, file: string, color: string) => {
+      if (!map.current.getSource(id)) {
+        map.current.addSource(id, {
+          type: "geojson",
+          data: `${baseUrl}/${file}`,
+        });
+        map.current.addLayer({
+          id,
+          type: "line",
+          source: id,
+          paint: {
+            "line-color": color,
+            "line-width": 2,
+          },
+        });
+      }
+    };
+
+    const removeExtraLayer = (id: string) => {
+      if (map.current.getLayer(id)) map.current.removeLayer(id);
+      if (map.current.getSource(id)) map.current.removeSource(id);
+    };
+
+    // toggle each
+    extraLayers.village
+      ? addExtraLayer("village-layer", "Basic Village Data.geojson", "#008000")
+      : removeExtraLayer("village-layer");
+
+    extraLayers.camp
+      ? addExtraLayer("camp-layer", "CAMP.geojson", "#FF0000")
+      : removeExtraLayer("camp-layer");
+
+    extraLayers.ps
+      ? addExtraLayer("ps-layer", "PS.geojson", "#0000FF")
+      : removeExtraLayer("ps-layer");
+
+    extraLayers.road
+      ? addExtraLayer("road-layer", "ROAD.geojson", "#FFA500")
+      : removeExtraLayer("road-layer");
+
+    extraLayers.otherDistrict
+      ? addExtraLayer("other-district-layer", "other distirict.geojson", "#800080")
+      : removeExtraLayer("other-district-layer");
+  }, [extraLayers]);
+
+  return (
+    <>
+      {/* ✅ Toggle Button */}
+      <div className="absolute top-4 left-4 z-50">
+        <button
+          onClick={() => setOpen(!open)}
+          className="p-2 bg-white rounded shadow hover:bg-gray-100"
+        >
+          <Layers size={20} />
+        </button>
+
+        {/* ✅ Dropdown */}
+        {open && (
+          <div className="mt-2 bg-white p-3 rounded shadow space-y-2 w-48">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={extraLayers.village}
+                onChange={() =>
+                  setExtraLayers({ ...extraLayers, village: !extraLayers.village })
+                }
+              />
+              <span>Village</span>
+            </label>
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={extraLayers.camp}
+                onChange={() =>
+                  setExtraLayers({ ...extraLayers, camp: !extraLayers.camp })
+                }
+              />
+              <span>Camp</span>
+            </label>
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={extraLayers.ps}
+                onChange={() =>
+                  setExtraLayers({ ...extraLayers, ps: !extraLayers.ps })
+                }
+              />
+              <span>Police Station</span>
+            </label>
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={extraLayers.road}
+                onChange={() =>
+                  setExtraLayers({ ...extraLayers, road: !extraLayers.road })
+                }
+              />
+              <span>Road</span>
+            </label>
+
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={extraLayers.otherDistrict}
+                onChange={() =>
+                  setExtraLayers({
+                    ...extraLayers,
+                    otherDistrict: !extraLayers.otherDistrict,
+                  })
+                }
+              />
+              <span>Other District</span>
+            </label>
+          </div>
+        )}
+      </div>
+    </>
+  );
 };

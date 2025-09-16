@@ -1,0 +1,20 @@
+{
+"type": "FeatureCollection",
+"name": "PS",
+"features": [
+{ "type": "Feature", "properties": { "Name": "PS K-JHOR" }, "geometry": { "type": "Point", "coordinates": [ 81.2370784, 19.6472604, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS NARAYANPUR" }, "geometry": { "type": "Point", "coordinates": [ 81.2416876, 19.7318198, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS KURUSHNAR" }, "geometry": { "type": "Point", "coordinates": [ 81.1518324, 19.7039941, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS EDKA" }, "geometry": { "type": "Point", "coordinates": [ 81.3175171, 19.7703988, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS BENUR" }, "geometry": { "type": "Point", "coordinates": [ 81.4151163, 19.6695002, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS P-GAON" }, "geometry": { "type": "Point", "coordinates": [ 81.3536039, 19.6184827, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS JHARAGHATI" }, "geometry": { "type": "Point", "coordinates": [ 81.3690452, 19.5630708, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS C-DONAGAR" }, "geometry": { "type": "Point", "coordinates": [ 81.327595, 19.4498305, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS DHAUDAI" }, "geometry": { "type": "Point", "coordinates": [ 81.3703989, 19.4923089, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS DHANORA" }, "geometry": { "type": "Point", "coordinates": [ 81.2484778, 19.4476884, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS ORCHHA" }, "geometry": { "type": "Point", "coordinates": [ 81.1793174, 19.3640476, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS SONPUR" }, "geometry": { "type": "Point", "coordinates": [ 81.0022581, 19.7059846, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS KOHKAMETA" }, "geometry": { "type": "Point", "coordinates": [ 81.0724611, 19.6396024, 0.0 ] } },
+{ "type": "Feature", "properties": { "Name": "PS BHARANDA" }, "geometry": { "type": "Point", "coordinates": [ 81.2213111, 19.8190333, 0.0 ] } }
+]
+}
