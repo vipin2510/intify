@@ -33,7 +33,7 @@ export const XLS = ({ map }: { map: any }) => {
   useEffect(() => {
     const fetchData = async () => {
       const res = await axios.get(
-        "https://intify-server.vercel.app/api/spreadsheet?name=int+main+sheet"
+        "https://intify-server.vercel.app/api/spreadsheet?name=int+main+sheet",
       );
       const rows = res.data;
       rows.shift();
@@ -78,8 +78,8 @@ export const XLS = ({ map }: { map: any }) => {
         ? data.filter(
             (el) =>
               !Object.values(el).some(
-                (value) => value?.toString().toLowerCase() === "unknown"
-              )
+                (value) => value?.toString().toLowerCase() === "unknown",
+              ),
           )
         : data;
       setFilteredData(updatedFilteredData);
@@ -108,24 +108,22 @@ export const XLS = ({ map }: { map: any }) => {
     });
   };
 
-  // 🔹 Map cluster rendering
+  // 🔹 Map marker rendering
   useEffect(() => {
     if (!map?.current || filteredData.length === 0) return;
-    
+
+    const pointLayers = ["points", "point-labels"];
+
     // If markers are disabled, hide the layers and return
     if (!showLayer.marker) {
-      [
-        "clusters",
-        "cluster-count", 
-        "unclustered-point",
-        "unclustered-label",
-      ].forEach((layer) => {
+      pointLayers.forEach((layer) => {
         if (map.current.getLayer(layer)) {
-          map.current.setLayoutProperty(layer, 'visibility', 'none');
+          map.current.setLayoutProperty(layer, "visibility", "none");
         }
       });
       return;
     }
+
     // Convert to GeoJSON
     const geojson = {
       type: "FeatureCollection" as const,
@@ -159,59 +157,24 @@ export const XLS = ({ map }: { map: any }) => {
     setGeojsonData(geojson);
 
     // Cleanup if re-render
-    if (map.current.getSource("points")) {
-      [
-        "clusters",
-        "cluster-count",
-        "unclustered-point",
-        "unclustered-label",
-      ].forEach((layer) => {
+    if (map.current.getSource("points-source")) {
+      pointLayers.forEach((layer) => {
         if (map.current.getLayer(layer)) map.current.removeLayer(layer);
       });
-      map.current.removeSource("points");
+      map.current.removeSource("points-source");
     }
 
-    // Add clustering source
-    map.current.addSource("points", {
+    // Add source for points
+    map.current.addSource("points-source", {
       type: "geojson",
       data: geojson,
-      cluster: true,
-      clusterMaxZoom: 14,
-      clusterRadius: 15,
     });
 
-    // Clustered circles
+    // Add layer for points (colored circles)
     map.current.addLayer({
-      id: "clusters",
+      id: "points",
       type: "circle",
-      source: "points",
-      filter: ["has", "point_count"],
-      paint: {
-        "circle-color": "#1978c8",
-        "circle-radius": 10,
-        "circle-opacity": 0.8,
-      },
-    });
-
-    // Cluster labels (just number of points)
-    map.current.addLayer({
-      id: "cluster-count",
-      type: "symbol",
-      source: "points",
-      filter: ["has", "point_count"],
-      layout: {
-        "text-field": "{point_count_abbreviated}",
-        "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-        "text-size": 12,
-      },
-    });
-
-    // Unclustered points (colored circles)
-    map.current.addLayer({
-      id: "unclustered-point",
-      type: "circle",
-      source: "points",
-      filter: ["!", ["has", "point_count"]],
+      source: "points-source",
       paint: {
         "circle-color": ["get", "color"],
         "circle-radius": 6,
@@ -220,32 +183,31 @@ export const XLS = ({ map }: { map: any }) => {
       },
     });
 
-    // 🔹 Unclustered point labels (legend text instead of numbers)
+    // Add layer for point labels (legend text)
     map.current.addLayer({
-      id: "unclustered-label",
+      id: "point-labels",
       type: "symbol",
-      source: "points",
-      filter: ["!", ["has", "point_count"]],
+      source: "points-source",
       layout: {
         "text-field": ["get", "legend"],
-        "text-size": 11,
+        "text-size": 12,
         "text-offset": [0, 1],
         "text-anchor": "top",
       },
       paint: {
-        "text-color": "#111",
-        "text-halo-color": "#fff",
+        "text-color": "#fff",
+        "text-halo-color": "#000",
         "text-halo-width": 1,
       },
     });
 
-    // Popup on click (single point)
+    // Popup on click
     map.current.on(
       "click",
-      "unclustered-point",
+      "points",
       (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
         const features = map.current?.queryRenderedFeatures(e.point, {
-          layers: ["unclustered-point"],
+          layers: ["points"],
         });
         if (!features || !features[0]) return;
 
@@ -255,44 +217,16 @@ export const XLS = ({ map }: { map: any }) => {
           .setLngLat((features[0].geometry as any).coordinates)
           .setHTML(
             `<h3>${intUniqueNo}: ${intContent}</h3>
-         <a href="/profile/${uid}" target="_blank">View Profile</a>`
+         <a href="/profile/${uid}" target="_blank">View Profile</a>`,
           )
           .addTo(map.current!);
-      }
-    );
-
-    // Zoom into clusters
-    map.current.on(
-      "click",
-      "clusters",
-      (e: MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
-        const features = map.current?.queryRenderedFeatures(e.point, {
-          layers: ["clusters"],
-        });
-        if (!features || !features[0]) return;
-
-        const clusterId = features[0].properties?.cluster_id;
-        const source: any = map.current?.getSource("points");
-
-        source.getClusterExpansionZoom(clusterId, (err: any, zoom: number) => {
-          if (err) return;
-          map.current?.easeTo({
-            center: (features[0].geometry as any).coordinates,
-            zoom,
-          });
-        });
-      }
+      },
     );
 
     // Show all marker layers
-    [
-      "clusters",
-      "cluster-count",
-      "unclustered-point", 
-      "unclustered-label",
-    ].forEach((layer) => {
+    pointLayers.forEach((layer) => {
       if (map.current.getLayer(layer)) {
-        map.current.setLayoutProperty(layer, 'visibility', 'visible');
+        map.current.setLayoutProperty(layer, "visibility", "visible");
       }
     });
 
