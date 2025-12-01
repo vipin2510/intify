@@ -26,7 +26,8 @@ export const AUTH_CONFIG = {
 'laikhankorram797@gmail.com',
 'somsushilkumar5@gmail.com',
         'ajayraj89@gmail.com',
-        'intifyviewer@gmail.com'
+        'intifyviewer@gmail.com',
+        'singhajax@gmail.com'
 
         // Add more authorized email addresses here
     ],
